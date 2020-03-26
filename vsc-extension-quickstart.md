@@ -8,23 +8,37 @@
 * `src/extension.ts` - this is the main file where you will provide the implementation of your command.
   * The file exports one function, `activate`, which is called the very first time your extension is activated (in this case by executing the command). Inside the `activate` function we call `registerCommand`.
   * We pass the function containing the implementation of the command as the second parameter to `registerCommand`.
+* `syntaxes/resjson.tmLanguage` - this is the Text mate grammar file that is used for tokenization.
+* `language-configuration.json` - this is the language configuration, defining the tokens that are used for comments and brackets.
 
 ## Get up and running straight away
 
+* Make sure the language configuration settings in `language-configuration.json` are accurate.
 * Press `F5` to open a new window with your extension loaded.
 * Run your command from the command palette by pressing (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac) and typing `Hello World`.
 * Set breakpoints in your code inside `src/extension.ts` to debug your extension.
 * Find output from your extension in the debug console.
+* Create a new file with a file name suffix matching your language.
+* Verify that syntax highlighting works and that the language configuration settings are working.
 
 ## Make changes
 
-* You can relaunch the extension from the debug toolbar after changing code in `src/extension.ts`.
+* You can relaunch the extension from the debug toolbar after making changes to the files listed above.
 * You can also reload (`Ctrl+R` or `Cmd+R` on Mac) the VS Code window with your extension to load your changes.
 
 
 ## Explore the API
 
 * You can open the full set of our API when you open the file `node_modules/@types/vscode/index.d.ts`.
+
+## Add more language features
+
+* To add features such as intellisense, hovers and validators check out the VS Code extenders documentation at https://code.visualstudio.com/docs
+
+## Install your extension
+
+* To start using your extension with Visual Studio Code copy it into the `<user home>/.vscode/extensions` folder and restart Code.
+* To share your extension with the world, read on https://code.visualstudio.com/docs about publishing an extension.
 
 ## Run tests
 
@@ -40,3 +54,4 @@
  * Reduce the extension size and improve the startup time by [bundling your extension](https://code.visualstudio.com/api/working-with-extensions/bundling-extension).
  * [Publish your extension](https://code.visualstudio.com/api/working-with-extensions/publishing-extension) on the VSCode extension marketplace.
  * Automate builds by setting up [Continuous Integration](https://code.visualstudio.com/api/working-with-extensions/continuous-integration).
+
