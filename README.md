@@ -1,65 +1,48 @@
-# resjson README
+# RESJSON
 
-This is the README for your extension "resjson". After writing up a brief description, we recommend including the following sections.
+## What does this extension do?
+This extension provides language support for RESJSON files(which have the file extension .resjson) in Visual Studio Code.
+This provides out of the box linting and syntax higlighting in VS Code. Additionally it provides helper commands to work with this kinds of files:
+- Flatten with underscore:
 
-## Features
+        {"Name": {"Last": "Mwendwa"}}
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+    becomes
 
-For example if there is an image subfolder under your extension project workspace:
+        {"Name_Last": "Mwendwa"}
+- Expand underscores:
 
-\!\[feature X\]\(images/feature-x.png\)
+        {"Name_Last": "Mwendwa"}
+    becomes
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+        {"Name": {"Last": "Mwendwa"}}
 
-## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## What is a RESJON file?
+Developer file used by Windows Metro style apps developed for Windows 8; saved in a JSON (JavaScript Object Notation) format and contains strings that are often used for localizing the app's user interface. [Reference](https://fileinfo.com/extension/resjson)
 
-## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## Running from source
+### Get up and running
 
-For example:
+* Clone the github repo
+* Run ```npm install``` to install necessary packages
+* Open in code then press `F5` to open a new window with this extension loaded.
 
-This extension contributes the following settings:
+### Making changes
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+* You can relaunch the extension from the debug toolbar after making code changes.
+* You can also reload (`Ctrl+R` or `Cmd+R` on Mac) the VS Code window with the extension to load changes.
 
-## Known Issues
+### Install extension manually
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+* To start using the extension with Visual Studio Code copy it into the `<user home>/.vscode/extensions` folder and restart Code.
 
-## Release Notes
 
-Users appreciate release notes as you update your extension.
+## To do
 
-### 1.0.0
+* Add features intellisense
+* Add hovers and validators
 
-Initial release of ...
+    [Learn more](https://code.visualstudio.com/docs)
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
