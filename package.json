@@ -17,6 +17,7 @@
   "homepage":  "https://github.com/cmwendwa/vscode-resjson/blob/master/README.md",
   "icon": "assets/images/resjson.png",
   "galleryBanner": {
+    "color": "#151920",
     "theme": "dark"
   },
   "categories": [
