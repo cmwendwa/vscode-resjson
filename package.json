@@ -2,7 +2,7 @@
   "name": "resjson",
   "displayName": "resjson",
   "description": "Provide language support for .resjson files.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.43.0"
   },
@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/cmwendwa/vscode-resjson/issues"
   },
-  "homepage":  "https://github.com/cmwendwa/vscode-resjson/blob/master/README.md",
+  "homepage": "https://github.com/cmwendwa/vscode-resjson/blob/master/README.md",
   "icon": "assets/images/resjson.png",
   "galleryBanner": {
     "color": "#151920",
