@@ -6,6 +6,19 @@
   "engines": {
     "vscode": "^1.43.0"
   },
+  "publisher": "cmwendwa",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cmwendwa/vscode-resjson.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cmwendwa/vscode-resjson/issues"
+  },
+  "homepage":  "https://github.com/cmwendwa/vscode-resjson/blob/master/README.md",
+  "icon": "assets/images/resjson.png",
+  "galleryBanner": {
+    "theme": "dark"
+  },
   "categories": [
     "Programming Languages"
   ],
