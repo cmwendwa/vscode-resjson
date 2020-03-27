@@ -1,27 +1,57 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
+import Utils from "./utils";
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+/**
+ * Called when extension is activated
+ */
 export function activate(context: vscode.ExtensionContext) {
+  const flattenByUnderScore = vscode.commands.registerCommand("extension.flattenByUnderscore", () => {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+      const document = editor.document;
+      const documentText = document.getText();
+      const flat = Utils.flatten(JSON.parse(documentText));
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "resjson" is now active!');
+      const firstLine = editor.document.lineAt(0);
+      const lastLine = editor.document.lineAt(editor.document.lineCount - 1);
+      const textRange = new vscode.Range(firstLine.range.start, lastLine.range.end);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
+      const withNewlines = Utils.insertNewLines(JSON.stringify(flat));
+      const toIndent = withNewlines.split('\n');
+      const withIndentation = Utils.indent(toIndent);
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World!');
-	});
+      editor.edit(editBuilder => {
+        editBuilder.replace(textRange, withIndentation);
+      });
+    }
+  });
 
-	context.subscriptions.push(disposable);
+  const expandByUnderScore = vscode.commands.registerCommand("extension.expandByUnderscore", () => {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+      const document = editor.document;
+      const documentText = document.getText();
+      const unflat = Utils.unflatten(JSON.parse(documentText));
+
+      const firstLine = editor.document.lineAt(0);
+      const lastLine = editor.document.lineAt(editor.document.lineCount - 1);
+      const textRange = new vscode.Range(firstLine.range.start, lastLine.range.end);
+
+      const withNewlines =  Utils.insertNewLines(JSON.stringify(unflat));
+      const toIndent = withNewlines.split("\n");
+      const withIndentation = Utils.indent(toIndent, !!editor.options.insertSpaces, Number(editor.options.tabSize));
+
+      editor.edit(editBuilder => {
+        editBuilder.replace(textRange, withIndentation);
+      });
+    }
+  });
+
+  context.subscriptions.push(expandByUnderScore);
+  context.subscriptions.push(flattenByUnderScore);
 }
 
-// this method is called when your extension is deactivated
+/**
+ * Called when  extension is deactivated
+ */
 export function deactivate() {}
