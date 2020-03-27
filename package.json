@@ -36,8 +36,12 @@
     ],
     "commands": [
       {
-        "command": "extension.helloWorld",
-        "title": "Hello World"
+        "command": "extension.flattenByUnderscore",
+        "title": "Resjson: Flatten by underscore(_)"
+      },
+      {
+        "command": "extension.expandByUnderscore",
+        "title": "Rejson: Unflatten by underscore(_)"
       }
     ]
   },
