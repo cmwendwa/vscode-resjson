@@ -1,4 +1,6 @@
 # RESJSON
+## Get it
+Download from VS Code extension  marketplace using this [link](https://marketplace.visualstudio.com/items?itemName=cmwendwa.resjson) or in VS Code use the the shortcut `Ctlr + X` on Windows or `CMD + X` on Mac then search 'Resjson'.
 
 ## What does this extension do?
 This extension provides language support for RESJSON files(which have the file extension .resjson) in Visual Studio Code.
