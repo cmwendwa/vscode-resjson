@@ -130,7 +130,7 @@
 							</dict>
 						</dict>
 						<key>match</key>
-						<string>(//).*$\n?</string>
+						<string>(?!\B"[^"]*)//(?![^"]*"\B).*$\n?</string>
 						<key>name</key>
 						<string>comment.line.double-slash.js</string>
 					</dict>
@@ -144,7 +144,7 @@
 							</dict>
 						</dict>
 						<key>match</key>
-						<string>"_([^"]+).comment"\s*:.*$\n?</string>
+						<string>"_([^"]+).comment"\s*:.*",?$\n?</string>
 						<key>name</key>
 						<string>comment.block.documentation.json</string>
 					</dict>
@@ -158,7 +158,7 @@
 							</dict>
 						</dict>
 						<key>match</key>
-						<string>"//"\s*:.*$\n?</string>
+						<string>("//")\s*:\s*.*",?$\n?</string>
 						<key>name</key>
 						<string>comment.block.documentation.json</string>
 					</dict>
@@ -314,7 +314,7 @@
 			<key>objectkey</key>
 			<dict>
 				<key>begin</key>
-				<string>"(?!_)</string>
+				<string>"(?!(_|(//)))</string>
 				<key>beginCaptures</key>
 				<dict>
 					<key>0</key>
