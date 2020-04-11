@@ -151,4 +151,35 @@ export default class Utils {
     });
     return linesToIndent.join("\n");
   }
+
+  public static padLineCommentKeys(str: string) {
+    const lineCommentRegex = /("\/\/")\s*:\s*".*",?$\n?/gm;
+    let res, indices = [];
+    while ((res = lineCommentRegex.exec(str))) {
+      indices.push(res.index);
+    }
+
+    let padSize = 0;
+    let result = str;
+    const commentLengthOffset = 3;
+
+    for (let i of indices) {
+      result = result.substring(0, i + padSize + commentLengthOffset) + (i.toString())
+        + result.substring(i + commentLengthOffset + padSize, result.length);
+      padSize += (Math.floor(Math.log10(i)) + 1);
+    }
+    return result;
+  }
+
+  public static removeLineCommentsPadding(str: string): string {
+    const paddedLineCommentPattern = /("\/\/\d+")/gm;
+    const parsed = str.replace(paddedLineCommentPattern, '"//"');
+    return parsed;
+  }
+
+  public static padItemComments(content: string) {
+    const itemCommentStartRegex = /(?<=")_(?=.*\.comment"\s*:.*",?$\n?)/gm;
+    const paddedContent = content.replace(itemCommentStartRegex, 'ResJSONCommentTStart_');
+    return paddedContent;
+  }
 }
