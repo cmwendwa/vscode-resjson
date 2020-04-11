@@ -35,18 +35,23 @@ export default class Utils {
       return data;
     }
     const regex = /_?([^_\[\]]+)|\[(\d+)\]/g;
-    const resultholder: KeyValue = {};
+    const itemCommentStartRegex = /^_(?=.*\.comment)/;
+    const resultHolder: KeyValue = {};
     for (const p in data) {
-      let cur: KeyValue = resultholder;
-      let prop = "",
-        m;
+      let cur: KeyValue = resultHolder;
+      let prop = "", m;
       while ((m = regex.exec(p))) {
         cur = cur[prop] || (cur[prop] = m[2] ? [] : {});
+        if (itemCommentStartRegex.test(p)) {
+          prop = p;
+          break;
+        }
         prop = m[2] || m[1];
       }
+
       cur[prop] = data[p];
     }
-    return resultholder[""] || resultholder;
+    return resultHolder[""] || resultHolder;
   }
 
   public static insertNewLines(str: string) {
