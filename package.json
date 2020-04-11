@@ -55,7 +55,7 @@
       },
       {
         "command": "extension.expandByUnderscore",
-        "title": "Rejson: Unflatten by underscore(_)"
+        "title": "Rejson: Expand by underscore(_)"
       }
     ]
   },

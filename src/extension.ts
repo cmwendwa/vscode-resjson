@@ -10,16 +10,17 @@ export function activate(context: vscode.ExtensionContext) {
     if (editor) {
       const document = editor.document;
       const documentText = document.getText();
-      const flat = Utils.flatten(JSON.parse(documentText));
+      const withPaddedLineComments = Utils.padLineCommentKeys(documentText);
+      const parsedContent = JSON.parse(withPaddedLineComments);
+      const flat = Utils.flatten(parsedContent);
+
+      const withoutPaddedLineComments = Utils.removeLineCommentsPadding(JSON.stringify(flat));
+      const withNewlines = Utils.insertNewLines(withoutPaddedLineComments);
+      const withIndentation = Utils.indent(withNewlines);
 
       const firstLine = editor.document.lineAt(0);
       const lastLine = editor.document.lineAt(editor.document.lineCount - 1);
       const textRange = new vscode.Range(firstLine.range.start, lastLine.range.end);
-
-      const withNewlines = Utils.insertNewLines(JSON.stringify(flat));
-      const toIndent = withNewlines.split('\n');
-      const withIndentation = Utils.indent(toIndent);
-
       editor.edit(editBuilder => {
         editBuilder.replace(textRange, withIndentation);
       });
@@ -31,16 +32,17 @@ export function activate(context: vscode.ExtensionContext) {
     if (editor) {
       const document = editor.document;
       const documentText = document.getText();
-      const unflat = Utils.unflatten(JSON.parse(documentText));
+      const withPaddedLineComments = Utils.padLineCommentKeys(documentText);
+      const parsedContent = JSON.parse(withPaddedLineComments);
+      const expanded = Utils.expand(parsedContent);
+
+      const withoutPaddedLineComments = Utils.removeLineCommentsPadding(JSON.stringify(expanded));
+      const withNewlines = Utils.insertNewLines(withoutPaddedLineComments);
+      const withIndentation = Utils.indent(withNewlines, !!editor.options.insertSpaces, Number(editor.options.tabSize));
 
       const firstLine = editor.document.lineAt(0);
       const lastLine = editor.document.lineAt(editor.document.lineCount - 1);
       const textRange = new vscode.Range(firstLine.range.start, lastLine.range.end);
-
-      const withNewlines =  Utils.insertNewLines(JSON.stringify(unflat));
-      const toIndent = withNewlines.split("\n");
-      const withIndentation = Utils.indent(toIndent, !!editor.options.insertSpaces, Number(editor.options.tabSize));
-
       editor.edit(editBuilder => {
         editBuilder.replace(textRange, withIndentation);
       });
@@ -54,4 +56,4 @@ export function activate(context: vscode.ExtensionContext) {
 /**
  * Called when  extension is deactivated
  */
-export function deactivate() {}
+export function deactivate() { }

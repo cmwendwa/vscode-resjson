@@ -2,7 +2,11 @@ export interface KeyValue {
   [key: string]: any;
 }
 export default class Utils {
-  public static flatten(data: any) {
+  /**
+   * Flattens provided data with a semi-colon
+   * @param content data to be flattened
+   */
+  public static flatten(content: Object) {
     var result: KeyValue = {};
     const flattenRecursively = (current: KeyValue, property: string) => {
       if (Object(current) !== current) {
@@ -26,34 +30,42 @@ export default class Utils {
       }
     };
 
-    flattenRecursively(data, "");
+    flattenRecursively(content, "");
     return result;
   }
 
-  public static unflatten(data: KeyValue) {
-    if (Object(data) !== data || Array.isArray(data)) {
-      return data;
+  /**
+   * Expands provided data using underscores
+   * @param content
+   */
+  public static expand(content: KeyValue) {
+    if (Object(content) !== content || Array.isArray(content)) {
+      return content;
     }
     const regex = /_?([^_\[\]]+)|\[(\d+)\]/g;
     const itemCommentStartRegex = /^_(?=.*\.comment)/;
     const resultHolder: KeyValue = {};
-    for (const p in data) {
+    for (const key in content) {
       let cur: KeyValue = resultHolder;
       let prop = "", m;
-      while ((m = regex.exec(p))) {
+      while ((m = regex.exec(key))) {
         cur = cur[prop] || (cur[prop] = m[2] ? [] : {});
-        if (itemCommentStartRegex.test(p)) {
-          prop = p;
+        if (itemCommentStartRegex.test(key)) {
+          prop = key;
           break;
         }
         prop = m[2] || m[1];
       }
 
-      cur[prop] = data[p];
+      cur[prop] = content[key];
     }
     return resultHolder[""] || resultHolder;
   }
 
+  /**
+   * Adds new lines as necessary
+   * @param str string to be formatted
+   */
   public static insertNewLines(str: string) {
     const punctuationStack = new Array();
     const newLinePositions = [];
@@ -127,7 +139,14 @@ export default class Utils {
     return processed;
   }
 
-  public static indent(linesToIndent: string[], insertSpaces?: boolean, tabSize?: number): string {
+  /**
+   * Formats by adding indentation
+   * @param str the lines to be formatted
+   * @param insertSpaces whether to use spaces or tabs
+   * @param tabSize size of tab in no of spaces
+   */
+  public static indent(str: string, insertSpaces?: boolean, tabSize?: number): string {
+    const linesToIndent = str.split('\n');
     const indentChar = insertSpaces ? " " : "\t";
     if (linesToIndent.length <= 1) {
       return linesToIndent.join("\n");
@@ -152,6 +171,9 @@ export default class Utils {
     return linesToIndent.join("\n");
   }
 
+  /**
+   * Pads line comments so that they are not lost when flattening/expanding
+   */
   public static padLineCommentKeys(str: string) {
     const lineCommentRegex = /("\/\/")\s*:\s*".*",?$\n?/gm;
     let res, indices = [];
@@ -171,12 +193,18 @@ export default class Utils {
     return result;
   }
 
+  /**
+   * Remove line comment paddings
+   */
   public static removeLineCommentsPadding(str: string): string {
     const paddedLineCommentPattern = /("\/\/\d+")/gm;
     const parsed = str.replace(paddedLineCommentPattern, '"//"');
     return parsed;
   }
 
+  /**
+   *  Pad item comments: not using this currently
+   */
   public static padItemComments(content: string) {
     const itemCommentStartRegex = /(?<=")_(?=.*\.comment"\s*:.*",?$\n?)/gm;
     const paddedContent = content.replace(itemCommentStartRegex, 'ResJSONCommentTStart_');
