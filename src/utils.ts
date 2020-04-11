@@ -55,24 +55,87 @@ export default class Utils {
   }
 
   public static insertNewLines(str: string) {
-    let processed = str.replace(/{/g, "{\n");
-    processed = processed.replace(/}/g, "\n}");
-    processed = processed.replace(/,(?!\s)/g, ",\n");
-    processed = processed.replace(/:(?!\s)/g, ": ");
-    processed = processed.replace(/\[(?!\s)/g, "[\n");
-    processed = processed.replace(/(?!\s)\]/g, "\n]");
+    const punctuationStack = new Array();
+    const newLinePositions = [];
+
+    for (let i = 0; i < str.length; i++) {
+      const top = punctuationStack[punctuationStack.length - 1];
+      if (str[i] === '"') {
+        if (top === str[i]) {
+          punctuationStack.pop();
+        } else {
+          punctuationStack.push(str[i]);
+        }
+        continue;
+      }
+
+      if (str[i] === "'") {
+        if (top === str[i]) {
+          punctuationStack.pop();
+        } else {
+          punctuationStack.push(str[i]);
+        }
+        continue;
+      }
+
+      if (top === '"' || top === "'") {
+        continue;
+      }
+
+      if (str[i] === ",") {
+        newLinePositions.push(i + 1);
+        continue;
+      }
+
+      if (str[i] === "{") {
+        punctuationStack.push(str[i]);
+        newLinePositions.push(i + 1);
+        continue;
+      }
+
+      if (str[i] === "[") {
+        punctuationStack.push(str[i]);
+        newLinePositions.push(i + 1);
+        continue;
+      }
+
+      if (str[i] === "}") {
+        if (top === '{') {
+          punctuationStack.pop();
+          newLinePositions.push(i);
+          continue;
+        }
+      }
+
+      if (str[i] === "]") {
+        if (top === '[') {
+          punctuationStack.pop();
+          newLinePositions.push(i);
+          continue;
+        }
+      }
+    }
+
+    let processed = str;
+    let addedPadding = 0;
+    for (const position of newLinePositions) {
+      processed = processed.substring(0, position + addedPadding) + '\n' + processed.substring(position + addedPadding, processed.length);
+      addedPadding += 1;
+    }
+
+    processed = processed.replace(/(?<="):(?=")/gm, ': ');
     return processed;
   }
 
   public static indent(linesToIndent: string[], insertSpaces?: boolean, tabSize?: number): string {
     const indentChar = insertSpaces ? " " : "\t";
     if (linesToIndent.length <= 1) {
-      return linesToIndent.join("\n"); // Skip indentation
+      return linesToIndent.join("\n");
     }
 
     let tabs = 0;
     linesToIndent.forEach((line, index) => {
-      if (line.includes("}") && !line.match(/}(?:(?<=["']:)|(?=["']))/)) {
+      if (line.match((/(?<!".*)}(?!.*")/))) {
         tabs -= 1;
       }
       if (insertSpaces) {
@@ -82,7 +145,7 @@ export default class Utils {
         linesToIndent[index] = indentChar.repeat(tabs) + line;
       }
 
-      if (line.includes("{") && !line.match(/{(?:(?<=["']:)|(?=["']))/)) {
+      if (line.match(/{(?!(.*"))/)) {
         tabs += 1;
       }
     });
