@@ -4,12 +4,12 @@ export interface KeyValue {
 export default class Utils {
   public static flatten(data: any) {
     var result: KeyValue = {};
-    const recurse = (current: KeyValue, property: string) => {
+    const flattenRecursively = (current: KeyValue, property: string) => {
       if (Object(current) !== current) {
         result[property] = current;
       } else if (Array.isArray(current)) {
         for (let i = 0, l = current.length; i < l; i++) {
-          recurse(current[i], property + "[" + i + "]");
+          flattenRecursively(current[i], property + "[" + i + "]");
         }
         if (current.length === 0) {
           result[property] = [];
@@ -18,7 +18,7 @@ export default class Utils {
         var isEmpty = true;
         for (const p in current) {
           isEmpty = false;
-          recurse(current[p], property ? property + "_" + p : p);
+          flattenRecursively(current[p], property ? property + "_" + p : p);
         }
         if (isEmpty && property) {
           result[property] = {};
@@ -26,7 +26,7 @@ export default class Utils {
       }
     };
 
-    recurse(data, "");
+    flattenRecursively(data, "");
     return result;
   }
 
