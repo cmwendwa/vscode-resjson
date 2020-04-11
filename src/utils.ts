@@ -43,7 +43,7 @@ export default class Utils {
       return content;
     }
     const regex = /_?([^_\[\]]+)|\[(\d+)\]/g;
-    const itemCommentStartRegex = /^_(?=.*\.comment)/;
+    const itemCommentStartRegex = /(?<=")_(?=.*\.comment)/;
     const resultHolder: KeyValue = {};
     for (const key in content) {
       let cur: KeyValue = resultHolder;
