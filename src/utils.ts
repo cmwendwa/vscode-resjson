@@ -72,59 +72,46 @@ export default class Utils {
 
     for (let i = 0; i < str.length; i++) {
       const top = punctuationStack[punctuationStack.length - 1];
-      if (str[i] === '"') {
+      const escaped = str[i - 1] === '\\';
+      if (escaped) {
+        continue;
+      }
+
+      if (top === '"') {
         if (top === str[i]) {
           punctuationStack.pop();
-        } else {
-          punctuationStack.push(str[i]);
         }
         continue;
       }
 
-      if (str[i] === "'") {
-        if (top === str[i]) {
-          punctuationStack.pop();
-        } else {
+      switch (str[i]) {
+        case '"':
           punctuationStack.push(str[i]);
-        }
-        continue;
-      }
-
-      if (top === '"' || top === "'") {
-        continue;
-      }
-
-      if (str[i] === ",") {
-        newLinePositions.push(i + 1);
-        continue;
-      }
-
-      if (str[i] === "{") {
-        punctuationStack.push(str[i]);
-        newLinePositions.push(i + 1);
-        continue;
-      }
-
-      if (str[i] === "[") {
-        punctuationStack.push(str[i]);
-        newLinePositions.push(i + 1);
-        continue;
-      }
-
-      if (str[i] === "}") {
-        if (top === '{') {
+          break;
+        case ",":
+          newLinePositions.push(i + 1);
+          break;
+        case "{":
+          punctuationStack.push(str[i]);
+          newLinePositions.push(i + 1);
+          break;
+        case "[":
           punctuationStack.pop();
           newLinePositions.push(i);
-          continue;
-        }
-      }
+          break;
 
-      if (str[i] === "]") {
-        if (top === '[') {
-          punctuationStack.pop();
-          newLinePositions.push(i);
-          continue;
-        }
+        case "}":
+          if (top === '{') {
+            punctuationStack.pop();
+            newLinePositions.push(i);
+          }
+          break;
+        case "]":
+          if (top === '[') {
+            punctuationStack.pop();
+            newLinePositions.push(i);
+          }
+          break;
       }
     }
 
