@@ -41,8 +41,10 @@ export function activate(context: vscode.ExtensionContext) {
       const withIndentation = Utils.indent(withNewlines, !!editor.options.insertSpaces, Number(editor.options.tabSize));
 
       const firstLine = editor.document.lineAt(0);
-      const lastLine = editor.document.lineAt(editor.document.lineCount - 1);
-      const textRange = new vscode.Range(firstLine.range.start, lastLine.range.end);
+      let lastLine = editor.document.lineAt(editor.document.lineCount - 1);
+      const contentNumberOfLines  = withIndentation.split('\n').length;
+      let lastPosition = contentNumberOfLines > lastLine.lineNumber ? new vscode.Position(contentNumberOfLines, 0) : lastLine.range.end;
+      const textRange = new vscode.Range(firstLine.range.start, lastPosition);
       editor.edit(editBuilder => {
         editBuilder.replace(textRange, withIndentation);
       });

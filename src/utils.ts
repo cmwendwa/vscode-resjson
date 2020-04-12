@@ -42,24 +42,24 @@ export default class Utils {
     if (Object(content) !== content || Array.isArray(content)) {
       return content;
     }
-    const regex = /_?([^_\[\]]+)|\[(\d+)\]/g;
-    const itemCommentStartRegex = /(?<=")_(?=.*\.comment)/;
     const resultHolder: KeyValue = {};
     for (const key in content) {
+      const keySeparatorPattern = /_?([^_\[\]]+)|\[(\d+)\]/g;
+      const itemCommentStartRegex = /^_(?=.*\.comment)/;
       let cur: KeyValue = resultHolder;
-      let prop = "", m;
-      while ((m = regex.exec(key))) {
-        cur = cur[prop] || (cur[prop] = m[2] ? [] : {});
+      let prop = "initial", parts;
+      while ((parts = keySeparatorPattern.exec(key))) {
+        cur = cur[prop] || (cur[prop] = parts[2] ? [] : {});
         if (itemCommentStartRegex.test(key)) {
           prop = key;
           break;
         }
-        prop = m[2] || m[1];
+        prop = parts[2] || parts[1];
       }
 
       cur[prop] = content[key];
     }
-    return resultHolder[""] || resultHolder;
+    return resultHolder["initial"] || resultHolder;
   }
 
   /**
