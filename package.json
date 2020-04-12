@@ -55,7 +55,7 @@
       },
       {
         "command": "extension.expandByUnderscore",
-        "title": "Rejson: Expand by underscore(_)"
+        "title": "Resjson: Expand by underscore(_)"
       }
     ]
   },
