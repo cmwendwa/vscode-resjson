@@ -6,7 +6,7 @@ export default class Utils {
    * Flattens provided data with a semi-colon
    * @param content data to be flattened
    */
-  public static flatten(content: Object) {
+  public static flatten(content: Object): Object {
     var result: KeyValue = {};
     const flattenRecursively = (current: KeyValue, property: string) => {
       if (Object(current) !== current) {
@@ -38,14 +38,14 @@ export default class Utils {
    * Expands provided data using underscores
    * @param content
    */
-  public static expand(content: KeyValue) {
+  public static expand(content: KeyValue): KeyValue {
     if (Object(content) !== content || Array.isArray(content)) {
       return content;
     }
     const resultHolder: KeyValue = {};
     for (const key in content) {
       const keySeparatorPattern = /_?([^_\[\]]+)|\[(\d+)\]/g;
-      const itemCommentStartRegex = /^_(?=.*\.comment)/;
+      const itemCommentStartRegex = /^ResJSONCommentTStart(\d+)_(?=.*\.comment)/;
       let cur: KeyValue = resultHolder;
       let prop = "initial", parts;
       while ((parts = keySeparatorPattern.exec(key))) {
@@ -66,7 +66,7 @@ export default class Utils {
    * Adds new lines as necessary
    * @param str string to be formatted
    */
-  public static insertNewLines(str: string) {
+  public static insertNewLines(str: string): string {
     const punctuationStack = new Array();
     const newLinePositions = [];
 
@@ -161,7 +161,7 @@ export default class Utils {
   /**
    * Pads line comments so that they are not lost when flattening/expanding
    */
-  public static padLineCommentKeys(str: string) {
+  private static padLineCommentKeys(str: string): string {
     const lineCommentRegex = /("\/\/")\s*:\s*".*",?$\n?/gm;
     let res, indices = [];
     while ((res = lineCommentRegex.exec(str))) {
@@ -183,18 +183,50 @@ export default class Utils {
   /**
    * Remove line comment paddings
    */
-  public static removeLineCommentsPadding(str: string): string {
+  private static removeLineCommentsPadding(str: string): string {
     const paddedLineCommentPattern = /("\/\/\d+")/gm;
     const parsed = str.replace(paddedLineCommentPattern, '"//"');
     return parsed;
   }
 
   /**
-   *  Pad item comments: not using this currently
+   *  Pad item comments
    */
-  public static padItemComments(content: string) {
-    const itemCommentStartRegex = /(?<=")_(?=.*\.comment"\s*:.*",?$\n?)/gm;
-    const paddedContent = content.replace(itemCommentStartRegex, 'ResJSONCommentTStart_');
+  private static padItemComments(content: string): string {
+    const itemCommentStartRegex = /(?<=")_(?=.*\.comment"\s*:.*",?$\n?)/m;
+    let paddedContent = content;
+
+    while (itemCommentStartRegex.test(paddedContent)) {
+      paddedContent = paddedContent.replace(itemCommentStartRegex, `ResJSONCommentTStart${Utils.getRandomNumber(0, 10000)}_`);
+    }
+
     return paddedContent;
   }
+
+  /**
+   * Remove item comment padding
+   */
+  private static removeItemCommentPadding(content: string): string {
+    const paddedItemCommentStartRegex = /(?<=")ResJSONCommentTStart\d+_(?=.*\.comment"\s*:.*",?$\n?)/gm;
+    return content.replace(paddedItemCommentStartRegex, '_');
+  }
+
+  public static addCommentPadding(content: string): string {
+    const withLineCommentPadding = Utils.padLineCommentKeys(content);
+    const withItemCommentPadding = Utils.padItemComments(withLineCommentPadding);
+    return withItemCommentPadding;
+  }
+
+  public static removeCommentPadding(content: string): string {
+    const withoutLineCommentPadding = Utils.removeLineCommentsPadding(content);
+    const withoutItemCommentPadding = Utils.removeItemCommentPadding(withoutLineCommentPadding);
+    return withoutItemCommentPadding;
+  }
+
+  private static getRandomNumber(min: number, max: number): number {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
 }

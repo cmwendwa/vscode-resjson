@@ -10,19 +10,19 @@ export function activate(context: vscode.ExtensionContext) {
     if (editor) {
       const document = editor.document;
       const documentText = document.getText();
-      const withPaddedLineComments = Utils.padLineCommentKeys(documentText);
-      const parsedContent = JSON.parse(withPaddedLineComments);
+      const withPaddedComments = Utils.addCommentPadding(documentText);
+      const parsedContent = JSON.parse(withPaddedComments);
       const flat = Utils.flatten(parsedContent);
 
-      const withoutPaddedLineComments = Utils.removeLineCommentsPadding(JSON.stringify(flat));
-      const withNewlines = Utils.insertNewLines(withoutPaddedLineComments);
+      const withNewlines = Utils.insertNewLines(JSON.stringify(flat));
       const withIndentation = Utils.indent(withNewlines);
+      const withoutPaddedComments = Utils.removeCommentPadding(withIndentation);
 
       const firstLine = editor.document.lineAt(0);
       const lastLine = editor.document.lineAt(editor.document.lineCount - 1);
       const textRange = new vscode.Range(firstLine.range.start, lastLine.range.end);
       editor.edit(editBuilder => {
-        editBuilder.replace(textRange, withIndentation);
+        editBuilder.replace(textRange, withoutPaddedComments);
       });
     }
   });
@@ -32,13 +32,13 @@ export function activate(context: vscode.ExtensionContext) {
     if (editor) {
       const document = editor.document;
       const documentText = document.getText();
-      const withPaddedLineComments = Utils.padLineCommentKeys(documentText);
-      const parsedContent = JSON.parse(withPaddedLineComments);
+      const withPaddedComments = Utils.addCommentPadding(documentText);
+      const parsedContent = JSON.parse(withPaddedComments);
       const expanded = Utils.expand(parsedContent);
 
-      const withoutPaddedLineComments = Utils.removeLineCommentsPadding(JSON.stringify(expanded));
-      const withNewlines = Utils.insertNewLines(withoutPaddedLineComments);
+      const withNewlines = Utils.insertNewLines(JSON.stringify(expanded));
       const withIndentation = Utils.indent(withNewlines, !!editor.options.insertSpaces, Number(editor.options.tabSize));
+      const withoutPaddedComments = Utils.removeCommentPadding(withIndentation);
 
       const firstLine = editor.document.lineAt(0);
       let lastLine = editor.document.lineAt(editor.document.lineCount - 1);
@@ -46,7 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
       let lastPosition = contentNumberOfLines > lastLine.lineNumber ? new vscode.Position(contentNumberOfLines, 0) : lastLine.range.end;
       const textRange = new vscode.Range(firstLine.range.start, lastPosition);
       editor.edit(editBuilder => {
-        editBuilder.replace(textRange, withIndentation);
+        editBuilder.replace(textRange, withoutPaddedComments);
       });
     }
   });
