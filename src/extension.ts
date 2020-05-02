@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import Utils from "./utils";
+import { Strings } from './constants';
 
 /**
  * Called when extension is activated
@@ -21,10 +22,10 @@ export function activate(context: vscode.ExtensionContext) {
           editBuilder.replace(textRange, flat);
         });
       } catch (error) {
-        vscode.window.showErrorMessage('Command RESJSON: Expand by underscore(_), Something went wrong! Ensure file is formatted correctly!');
+        vscode.window.showErrorMessage(Strings.somethingWentWrongFlattening);
       }
     } else {
-      vscode.window.showWarningMessage("Command RESJSON: Flatten by underscore(_) will only work with a .resjson file.");
+      vscode.window.showWarningMessage(Strings.flattenCommandNotSupported);
     }
   });
 
@@ -48,11 +49,11 @@ export function activate(context: vscode.ExtensionContext) {
         });
 
       } catch (error) {
-        vscode.window.showErrorMessage('Command RESJSON: Expand by underscore(_), Something went wrong! Ensure file is formatted correctly!');
+        vscode.window.showErrorMessage(Strings.somethingWentWrongExpanding);
       }
 
     } else {
-      vscode.window.showWarningMessage("Command RESJSON: Expand by underscore(_) will only work with a .resjson file.");
+      vscode.window.showWarningMessage(Strings.expandCommandNotSupported);
     }
   });
 
