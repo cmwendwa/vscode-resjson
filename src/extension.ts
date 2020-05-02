@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import Utils from "./utils";
-import { Strings } from './constants';
+import Utils from "./lib/utils";
+import { Strings } from './lib/constants';
 
 /**
  * Called when extension is activated
