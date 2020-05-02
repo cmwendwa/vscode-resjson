@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import Utils from "./lib/utils";
+import CommandUtils from "./lib/utils/command-utils";
 import { Strings } from './lib/constants';
 
 /**
@@ -12,7 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
       try {
         const document = activeTextEditor.document;
         const documentText = document.getText();
-        const flat = Utils.flatten(documentText);
+        const flat = CommandUtils.flatten(documentText);
 
         const firstLine = activeTextEditor.document.lineAt(0);
         const lastLine = activeTextEditor.document.lineAt(activeTextEditor.document.lineCount - 1);
@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
       try {
         const document = activeTextEditor.document;
         const documentText = document.getText();
-        const expanded = Utils.expand(documentText);
+        const expanded = CommandUtils.expand(documentText);
 
         const firstLine = activeTextEditor.document.lineAt(0);
         let lastLine = activeTextEditor.document.lineAt(activeTextEditor.document.lineCount - 1);
