@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { Regexes, Constants } from './constants';
 
 export interface KeyValue {
   [key: string]: any;
@@ -78,13 +79,15 @@ export default class Utils {
   private static expandObject(obj: KeyValue) {
     const resultHolder: KeyValue = {};
     for (const key in obj) {
-      const keySeparatorPattern = /_?([^_\[\]]+)|\[(\d+)\]/g;
-      const itemCommentStartRegex = /^RESJSONITEMCOMMENT\d+/;
-      const sectionCommentStartRegex = /^RESJSONLINECOMMENT\d+$/;
+      const {
+        keySeparatorPattern,
+        paddedItemCommentKeyStart,
+        paddedSectionCommentKeyStart
+      } = Regexes;
       let cur: KeyValue = resultHolder;
       let prop = "initial", parts;
       while ((parts = keySeparatorPattern.exec(key))) {
-        if (sectionCommentStartRegex.test(key) || itemCommentStartRegex.test(prop)) {
+        if (paddedSectionCommentKeyStart.test(key) || paddedItemCommentKeyStart.test(prop)) {
           prop = key;
           break;
         }
@@ -157,8 +160,8 @@ export default class Utils {
       addedPadding += 1;
     }
 
-    processed = processed.replace(/(?<="):(?=["{])/gm, ': ');
-    processed = processed.replace(/(?<=}),/gm, ',\n');
+    processed = processed.replace(Regexes.closingBracketsPatter, ': ');
+    processed = processed.replace(Regexes.objectEndComma, ',\n');
     return processed;
   }
 
@@ -177,7 +180,7 @@ export default class Utils {
 
     let tabs = 0;
     linesToIndent.forEach((line, index) => {
-      if (line.match((/(?<!".*)}(?!.*")/))) {
+      if (line.match((Regexes.objectEndCurlyBracelet))) {
         tabs -= 1;
       }
       if (options?.useSpaces) {
@@ -187,7 +190,7 @@ export default class Utils {
         linesToIndent[index] = indentChar.repeat(tabs) + line;
       }
 
-      if (line.match(/{(?!(.*"))/)) {
+      if (line.match(Regexes.objectStartCurlyBracelet)) {
         tabs += 1;
       }
     });
@@ -198,16 +201,14 @@ export default class Utils {
    * Pads line comments so that they are not lost when flattening/expanding
    */
   private static padLineCommentKeys(str: string): string {
-    const lineCommentKeyRegex = /(?<=")\/\/(?="\s*:\s*".*",?\n?)/gm;
-    const result = str.replace(lineCommentKeyRegex, (match, index) => {
+    const result = str.replace(Regexes.lineCommentKeyRegex, (match, index) => {
       let prefix = '';
       const restOfString = str.substr(index);
-      const nextNoneCommentKeyRegex = /(?<=")[^_(\/\/)].+(?=":\s*".*",?\n?)/;
-      const noneCommentKey = nextNoneCommentKeyRegex.exec(restOfString);
-      if (noneCommentKey) {
-        prefix = noneCommentKey[0].split('_')[0] + '_';
+      const nextNoneCommentKey = Regexes.noneCommentKeyRegex.exec(restOfString);
+      if (nextNoneCommentKey) {
+        prefix = nextNoneCommentKey[0].split('_')[0] + '_';
       }
-      return `${prefix}RESJSONLINECOMMENT${Utils.getRandomNumber(0, 10000)}`;
+      return `${prefix}${Constants.sectionCommentPaddingTextHex}${Utils.getRandomNumber(Constants.randomNumberFloor, Constants.randomNumberCeil)}`;
     });
     return result;
   }
@@ -216,8 +217,7 @@ export default class Utils {
    * Remove line comment paddings
    */
   private static removeLineCommentsPadding(str: string): string {
-    const paddedLineCommentPattern = /(?<=").*RESJSONLINECOMMENT\d+/gm;
-    const parsed = str.replace(paddedLineCommentPattern, '//');
+    const parsed = str.replace(Regexes.paddedSectionCommentPattern, '//');
     return parsed;
   }
 
@@ -225,29 +225,22 @@ export default class Utils {
    *  Pad item comments
    */
   private static padItemComments(content: string): string {
-    const itemCommentKey = /(?<=")_.*(?=\.comment"\s*:.*",?$\n?)/m;
     let paddedContent = content;
-
-    try {
-      paddedContent = paddedContent.replace(itemCommentKey, (match, _) => {
-        const newStartDelimiter = `RESJSONITEMCOMMENT${Utils.getRandomNumber(0, 10000)}`;
-        const commentedItem = match.substr(1);
-        const itemParent = commentedItem.split('_').slice(0, -1).join('_');
-        const output = `${itemParent}_${newStartDelimiter}${match}`;
-        return output;
-      });
-      return paddedContent;
-    } catch (error) {
-      console.log(error);
-    }
+    paddedContent = paddedContent.replace(Regexes.itemCommentKey, (match, _) => {
+      const newStartDelimiter = `${Constants.itemCommentPaddingTextHex}${Utils.getRandomNumber(Constants.randomNumberFloor, Constants.randomNumberCeil)}`;
+      const commentedItem = match.substr(1);
+      const itemParent = commentedItem.split('_').slice(0, -1).join('_');
+      const output = `${itemParent}_${newStartDelimiter}${match}`;
+      return output;
+    });
+    return paddedContent;
   }
 
   /**
    * Remove item comment padding
    */
   private static removeItemCommentPadding(content: string): string {
-    const paddedItemCommentStartRegex = /(?<=").*RESJSONITEMCOMMENT\d+(?=.*.comment"\s*:\s*".*",?\n?)/gm;
-    return content.replace(paddedItemCommentStartRegex, '');
+    return content.replace(Regexes.paddedItemCommentKey, '');
   }
 
   public static addCommentPadding(content: string): string {
