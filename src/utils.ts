@@ -1,13 +1,32 @@
+import * as vscode from "vscode";
+import { Regexes, Constants } from './constants';
+
 export interface KeyValue {
   [key: string]: any;
+}
+
+export interface IndentationOptions {
+  useSpaces?: boolean
+  tabSize?: number
 }
 export default class Utils {
   /**
    * Flattens provided data with a semi-colon
    * @param content data to be flattened
    */
-  public static flatten(content: Object): Object {
-    var result: KeyValue = {};
+  public static flatten(content: string): string {
+    const withPaddedComments = Utils.addCommentPadding(content);
+    const parsedContent = JSON.parse(withPaddedComments);
+    const flattened = Utils.flattenObject(parsedContent);
+
+    const withNewlines = Utils.insertNewLinesAndSpaces(JSON.stringify(flattened));
+    const withIndentation = Utils.indent(withNewlines);
+    const withoutPaddedComments = Utils.removeCommentPadding(withIndentation);
+    return withoutPaddedComments;
+  }
+
+  private static flattenObject(obj: object) {
+    let result: KeyValue = {};
     const flattenRecursively = (current: KeyValue, property: string) => {
       if (Object(current) !== current) {
         result[property] = current;
@@ -30,7 +49,7 @@ export default class Utils {
       }
     };
 
-    flattenRecursively(content, "");
+    flattenRecursively(obj, "");
     return result;
   }
 
@@ -38,26 +57,45 @@ export default class Utils {
    * Expands provided data using underscores
    * @param content
    */
-  public static expand(content: KeyValue): KeyValue {
-    if (Object(content) !== content || Array.isArray(content)) {
-      return content;
+  public static expand(content: string): string {
+    const withPaddedComments = Utils.addCommentPadding(content);
+    const parsedContent = JSON.parse(withPaddedComments);
+    const expanded = Utils.expandObject(parsedContent);
+    const withNewlines = Utils.insertNewLinesAndSpaces(JSON.stringify(expanded));
+
+    const inDentationOptions: IndentationOptions = {};
+    if (vscode.window.activeTextEditor) {
+      inDentationOptions.useSpaces = !!vscode.window.activeTextEditor.options.insertSpaces;
+      inDentationOptions.tabSize = Number(vscode.window.activeTextEditor.options.tabSize);
     }
+    const withIndentation = Utils.indent(
+      withNewlines,
+      inDentationOptions
+    );
+    const withoutPaddedComments = Utils.removeCommentPadding(withIndentation);
+    return withoutPaddedComments;
+  }
+
+  private static expandObject(obj: KeyValue) {
     const resultHolder: KeyValue = {};
-    for (const key in content) {
-      const keySeparatorPattern = /_?([^_\[\]]+)|\[(\d+)\]/g;
-      const itemCommentStartRegex = /^ResJSONCommentTStart(\d+)_(?=.*\.comment)/;
+    for (const key in obj) {
+      const {
+        keySeparatorPattern,
+        paddedItemCommentKeyStart,
+        paddedSectionCommentKeyStart
+      } = Regexes;
       let cur: KeyValue = resultHolder;
       let prop = "initial", parts;
       while ((parts = keySeparatorPattern.exec(key))) {
-        cur = cur[prop] || (cur[prop] = parts[2] ? [] : {});
-        if (itemCommentStartRegex.test(key)) {
+        if (paddedSectionCommentKeyStart.test(key) || paddedItemCommentKeyStart.test(prop)) {
           prop = key;
           break;
         }
+        cur = cur[prop] || (cur[prop] = parts[2] ? [] : {});
         prop = parts[2] || parts[1];
-      }
 
-      cur[prop] = content[key];
+      }
+      cur[prop] = obj[key];
     }
     return resultHolder["initial"] || resultHolder;
   }
@@ -66,7 +104,7 @@ export default class Utils {
    * Adds new lines as necessary
    * @param str string to be formatted
    */
-  public static insertNewLines(str: string): string {
+  public static insertNewLinesAndSpaces(str: string): string {
     const punctuationStack = new Array();
     const newLinePositions = [];
 
@@ -122,7 +160,8 @@ export default class Utils {
       addedPadding += 1;
     }
 
-    processed = processed.replace(/(?<="):(?=")/gm, ': ');
+    processed = processed.replace(Regexes.closingBracketsPatter, ': ');
+    processed = processed.replace(Regexes.objectEndComma, ',\n');
     return processed;
   }
 
@@ -132,26 +171,26 @@ export default class Utils {
    * @param insertSpaces whether to use spaces or tabs
    * @param tabSize size of tab in no of spaces
    */
-  public static indent(str: string, insertSpaces?: boolean, tabSize?: number): string {
+  public static indent(str: string, options?: IndentationOptions): string {
     const linesToIndent = str.split('\n');
-    const indentChar = insertSpaces ? " " : "\t";
+    const indentChar = options?.useSpaces ? " " : "\t";
     if (linesToIndent.length <= 1) {
       return linesToIndent.join("\n");
     }
 
     let tabs = 0;
     linesToIndent.forEach((line, index) => {
-      if (line.match((/(?<!".*)}(?!.*")/))) {
+      if (line.match((Regexes.objectEndCurlyBracelet))) {
         tabs -= 1;
       }
-      if (insertSpaces) {
-        const spaces = tabs * Number(tabSize);
+      if (options?.useSpaces) {
+        const spaces = tabs * (options.tabSize || 2);
         linesToIndent[index] = indentChar.repeat(spaces) + line;
       } else {
         linesToIndent[index] = indentChar.repeat(tabs) + line;
       }
 
-      if (line.match(/{(?!(.*"))/)) {
+      if (line.match(Regexes.objectStartCurlyBracelet)) {
         tabs += 1;
       }
     });
@@ -162,21 +201,15 @@ export default class Utils {
    * Pads line comments so that they are not lost when flattening/expanding
    */
   private static padLineCommentKeys(str: string): string {
-    const lineCommentRegex = /("\/\/")\s*:\s*".*",?$\n?/gm;
-    let res, indices = [];
-    while ((res = lineCommentRegex.exec(str))) {
-      indices.push(res.index);
-    }
-
-    let padSize = 0;
-    let result = str;
-    const commentLengthOffset = 3;
-
-    for (let i of indices) {
-      result = result.substring(0, i + padSize + commentLengthOffset) + (i.toString())
-        + result.substring(i + commentLengthOffset + padSize, result.length);
-      padSize += (Math.floor(Math.log10(i)) + 1);
-    }
+    const result = str.replace(Regexes.lineCommentKeyRegex, (match, index) => {
+      let prefix = '';
+      const restOfString = str.substr(index);
+      const nextNoneCommentKey = Regexes.noneCommentKeyRegex.exec(restOfString);
+      if (nextNoneCommentKey) {
+        prefix = nextNoneCommentKey[0].split('_')[0] + '_';
+      }
+      return `${prefix}${Constants.sectionCommentPaddingTextHex}${Utils.getRandomNumber(Constants.randomNumberFloor, Constants.randomNumberCeil)}`;
+    });
     return result;
   }
 
@@ -184,8 +217,7 @@ export default class Utils {
    * Remove line comment paddings
    */
   private static removeLineCommentsPadding(str: string): string {
-    const paddedLineCommentPattern = /("\/\/\d+")/gm;
-    const parsed = str.replace(paddedLineCommentPattern, '"//"');
+    const parsed = str.replace(Regexes.paddedSectionCommentPattern, '//');
     return parsed;
   }
 
@@ -193,13 +225,14 @@ export default class Utils {
    *  Pad item comments
    */
   private static padItemComments(content: string): string {
-    const itemCommentStartRegex = /(?<=")_(?=.*\.comment"\s*:.*",?$\n?)/m;
     let paddedContent = content;
-
-    while (itemCommentStartRegex.test(paddedContent)) {
-      paddedContent = paddedContent.replace(itemCommentStartRegex, `ResJSONCommentTStart${Utils.getRandomNumber(0, 10000)}_`);
-    }
-
+    paddedContent = paddedContent.replace(Regexes.itemCommentKey, (match, _) => {
+      const newStartDelimiter = `${Constants.itemCommentPaddingTextHex}${Utils.getRandomNumber(Constants.randomNumberFloor, Constants.randomNumberCeil)}`;
+      const commentedItem = match.substr(1);
+      const itemParent = commentedItem.split('_').slice(0, -1).join('_');
+      const output = `${itemParent}_${newStartDelimiter}${match}`;
+      return output;
+    });
     return paddedContent;
   }
 
@@ -207,14 +240,13 @@ export default class Utils {
    * Remove item comment padding
    */
   private static removeItemCommentPadding(content: string): string {
-    const paddedItemCommentStartRegex = /(?<=")ResJSONCommentTStart\d+_(?=.*\.comment"\s*:.*",?$\n?)/gm;
-    return content.replace(paddedItemCommentStartRegex, '_');
+    return content.replace(Regexes.paddedItemCommentKey, '');
   }
 
   public static addCommentPadding(content: string): string {
-    const withLineCommentPadding = Utils.padLineCommentKeys(content);
-    const withItemCommentPadding = Utils.padItemComments(withLineCommentPadding);
-    return withItemCommentPadding;
+    const withItemCommentPadding = Utils.padItemComments(content);
+    const withLineCommentPadding = Utils.padLineCommentKeys(withItemCommentPadding);
+    return withLineCommentPadding;
   }
 
   public static removeCommentPadding(content: string): string {
@@ -228,5 +260,4 @@ export default class Utils {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
 }
