@@ -21,7 +21,9 @@
     "theme": "dark"
   },
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Formatters",
+    "Other"
   ],
   "activationEvents": [
     "*"
@@ -51,13 +53,24 @@
     "commands": [
       {
         "command": "extension.flattenByUnderscore",
-        "title": "Resjson: Flatten by underscore(_)"
+        "title": "RESJSON: Flatten by underscore(_)"
       },
       {
         "command": "extension.expandByUnderscore",
-        "title": "Resjson: Expand by underscore(_)"
+        "title": "RESJSON: Expand by underscore(_)"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "RESJSON",
+      "properties": {
+        "resjson.format.enable": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Enable resjson formatting"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "yarn run compile",
