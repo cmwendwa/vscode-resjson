@@ -9,6 +9,7 @@ This provides out of the box linting and syntax higlighting in VS Code.
 ![gif](assets/images/screen.gif)
 
 Additionally it provides helper commands to work with this kinds of files:
+* Formatting, works through out of box document formatting command(`Alt + Shift + F`)
 * RESJSON: Expand by underscore(_)
 * RESJSON: Flatten by underscore(_)
 
