@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { Regexes } from "../constants/res-regexes";
-import { Strings } from "../../../resources/res-strings";
+import { Strings } from "../../resources/res-strings";
 import { Formatting } from "./formatting-utils";
 import { KeyValue, FormattingError } from "../models";
 
