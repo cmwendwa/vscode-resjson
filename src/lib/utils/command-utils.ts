@@ -2,22 +2,23 @@ import * as vscode from "vscode";
 import { Regexes } from "../constants/res-regexes";
 import { Strings } from "../resources/res-strings";
 import { Formatting } from "./formatting-utils";
-import { KeyValue, IndentationOptions } from "../models";
+import { KeyValue, FormattingError } from "../models";
 
 export default class CommandUtils {
   /**
    * Flattens provided data with a semi-colon
    * @param content data to be flattened
    */
-  public static flatten(content: string): string {
-    const withPaddedComments = Formatting.addCommentPadding(content);
-    const parsedContent = JSON.parse(withPaddedComments);
-    const flattened = CommandUtils.flattenObject(parsedContent);
-
-    const withNewlines = Formatting.insertNewLinesAndSpaces(JSON.stringify(flattened));
-    const withIndentation = Formatting.indent(withNewlines);
-    const withoutPaddedComments = Formatting.removeCommentPadding(withIndentation);
-    return withoutPaddedComments;
+  public static flatten(document: vscode.TextDocument): string {
+    const content = document.getText();
+    try {
+      const withPaddingsAndPlaceholder = Formatting.addPlaceholdersAndPaddings(content);
+      const parsedContent = JSON.parse(withPaddingsAndPlaceholder);
+      const flattened = JSON.stringify(CommandUtils.flattenObject(parsedContent));
+      return Formatting.format(flattened);
+    } catch (error) {
+      throw new FormattingError();
+    }
   }
 
   private static flattenObject(obj: object) {
@@ -52,46 +53,59 @@ export default class CommandUtils {
    * Expands provided data using underscores
    * @param content
    */
-  public static expand(content: string): string {
-    const withPaddedComments = Formatting.addCommentPadding(content);
-    const parsedContent = JSON.parse(withPaddedComments);
-    const expanded = CommandUtils.expandObject(parsedContent);
-    const withNewlines = Formatting.insertNewLinesAndSpaces(JSON.stringify(expanded));
-
-    const inDentationOptions: IndentationOptions = {};
-    if (vscode.window.activeTextEditor) {
-      inDentationOptions.useSpaces = !!vscode.window.activeTextEditor.options.insertSpaces;
-      inDentationOptions.tabSize = Number(vscode.window.activeTextEditor.options.tabSize);
+  public static expand(document: vscode.TextDocument): string {
+    const content = document.getText().trim();
+    try {
+      const withPaddingsAndPlaceholder = Formatting.addPlaceholdersAndPaddings(content);
+      const parsedContent = JSON.parse(withPaddingsAndPlaceholder);
+      const expanded = JSON.stringify(CommandUtils.expandObject(parsedContent));
+      return Formatting.format(expanded);
+    } catch (error) {
+      throw new FormattingError();
     }
-    const withIndentation = Formatting.indent(
-      withNewlines,
-      inDentationOptions
-    );
-    const withoutPaddedComments = Formatting.removeCommentPadding(withIndentation);
-    return withoutPaddedComments;
   }
 
   private static expandObject(obj: KeyValue) {
     const resultHolder: KeyValue = {};
-    for (const key in obj) {
+    const keys = Object.keys(obj);
+    for (const index in keys) {
+      const key = keys[index];
       const {
         keySeparatorPattern,
         paddedItemCommentKeyStart,
-        paddedSectionCommentKeyStart
+        paddedSectionCommentKey,
+        paddedSectionCommentKeyStart,
+        newLinePlaceholderKey
       } = Regexes;
       let cur: KeyValue = resultHolder;
-      let prop = "initial", parts;
+      let prop = "initial",
+        parts;
+
       while ((parts = keySeparatorPattern.exec(key))) {
-        if (paddedSectionCommentKeyStart.test(key) || paddedItemCommentKeyStart.test(prop)) {
+        if (
+          (paddedSectionCommentKeyStart.test(prop)) ||
+          newLinePlaceholderKey.test(prop) ||
+          paddedItemCommentKeyStart.test(prop)
+        ) {
           prop = key;
           break;
         }
         cur = cur[prop] || (cur[prop] = parts[2] ? [] : {});
         prop = parts[2] || parts[1];
-
       }
       cur[prop] = obj[key];
     }
     return resultHolder["initial"] || resultHolder;
+  }
+
+  public static format(document: vscode.TextDocument): string {
+    try {
+      const content = document.getText().trim();
+      const formattedContent = Formatting.format(content);
+      return formattedContent;
+    } catch (error) {
+      vscode.window.showErrorMessage(Strings.errorParsing);
+      return document.getText();
+    }
   }
 }
