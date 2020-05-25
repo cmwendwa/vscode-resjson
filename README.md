@@ -6,7 +6,7 @@ Download from VS Code extension  marketplace using this [link](https://marketpla
 This extension provides language support for RESJSON files(which have the file extension .resjson) in Visual Studio Code.
 This provides out of the box linting and syntax higlighting in VS Code.
 
-![gif](resources/images/screen.gif)
+![gif](images/screen.gif)
 
 Additionally it provides helper commands to work with this kinds of files:
 * RESJSON: Expand by underscore(_)
