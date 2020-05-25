@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { Strings } from "./lib/resources/res-strings";
+import { Strings } from "../resources/res-strings";
 import CommandUtils from "./lib/utils/command-utils";
 import { FormattingError } from "./lib/models";
 
