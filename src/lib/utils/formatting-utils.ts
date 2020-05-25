@@ -1,11 +1,14 @@
-import { Regexes, Constants } from "../constants";
-import { IndentationOptions } from "../models";
+import { Regexes} from "../constants/res-regexes";
+import {Constants} from '../constants/general';
+import { IndentationOptions, FormattingError } from "../models";
+import { strict } from "assert";
+import * as vscode from "vscode";
 
 export class Formatting {
     /**
-   * Adds new lines as necessary
-   * @param str string to be formatted
-   */
+     * Adds new lines as necessary
+     * @param str string to be formatted
+     */
     public static insertNewLinesAndSpaces(str: string): string {
         const punctuationStack = new Array();
         const newLinePositions = [];

@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
+import { Strings } from "./lib/resources/res-strings";
 import CommandUtils from "./lib/utils/command-utils";
-import { Strings } from './lib/constants';
+import { FormattingError } from "./lib/models";
 
 /**
  * Called when extension is activated
