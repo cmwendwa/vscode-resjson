@@ -12,7 +12,7 @@ export default class CommandUtils {
   public static flatten(document: vscode.TextDocument): string {
     const content = document.getText();
     try {
-      const withPaddingsAndPlaceholder = Formatting.addPlaceholdersAndPaddings(content);
+      const withPaddingsAndPlaceholder = Formatting.addPlaceholders(content);
       const parsedContent = JSON.parse(withPaddingsAndPlaceholder);
       const flattened = JSON.stringify(CommandUtils.flattenObject(parsedContent));
       return Formatting.format(flattened);
@@ -56,7 +56,7 @@ export default class CommandUtils {
   public static expand(document: vscode.TextDocument): string {
     const content = document.getText().trim();
     try {
-      const withPaddingsAndPlaceholder = Formatting.addPlaceholdersAndPaddings(content);
+      const withPaddingsAndPlaceholder = Formatting.addPlaceholders(content);
       const parsedContent = JSON.parse(withPaddingsAndPlaceholder);
       const expanded = JSON.stringify(CommandUtils.expandObject(parsedContent));
       return Formatting.format(expanded);
@@ -73,7 +73,6 @@ export default class CommandUtils {
       const {
         keySeparatorPattern,
         paddedItemCommentKeyStart,
-        paddedSectionCommentKey,
         paddedSectionCommentKeyStart,
         newLinePlaceholderKey
       } = Regexes;
