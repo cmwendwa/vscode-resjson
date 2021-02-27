@@ -98,6 +98,10 @@ export default class CommandUtils {
     return resultHolder["initial"] || resultHolder;
   }
 
+  /**
+   * Formats a given document opinionatadely
+   * @param document to be formated
+   */
   public static format(document: vscode.TextDocument): string {
     try {
       const content = document.getText().trim();
