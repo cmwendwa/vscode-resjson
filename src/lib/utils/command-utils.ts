@@ -6,7 +6,7 @@ import { KeyValue, FormattingError } from "../models";
 
 export default class CommandUtils {
   /**
-   * Flattens provided data with a semi-colon
+   * Flattens provided data with a underscore
    * @param content data to be flattened
    */
   public static flatten(document: vscode.TextDocument): string {
