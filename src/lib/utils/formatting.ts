@@ -1,4 +1,4 @@
-import { Regexes } from "../constants/res-regexes";
+import { Regexes } from "../constants/regexes";
 import { Constants } from '../constants/general';
 import { IndentationOptions, FormattingError } from "../models";
 import { strict } from "assert";

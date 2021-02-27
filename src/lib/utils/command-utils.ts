@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { Regexes } from "../constants/res-regexes";
+import { Regexes } from "../constants/regexes";
 import { Strings } from "../../resources/res-strings";
 import { Formatting } from "./formatting";
 import { KeyValue, FormattingError } from "../models";
