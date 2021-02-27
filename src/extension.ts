@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { Strings } from "./resources/res-strings";
-import CommandUtils from "./lib/utils/command-utils";
+import Commands from "./lib/utils/commands";
 import { FormattingError } from "./lib/models";
 
 /**
@@ -12,7 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (activeTextEditor && activeTextEditor.document.languageId === "resjson") {
       try {
         const document = activeTextEditor.document;
-        const flat = CommandUtils.flatten(document);
+        const flat = Commands.flatten(document);
 
         const firstLine = activeTextEditor.document.lineAt(0);
         const lastLine = activeTextEditor.document.lineAt(activeTextEditor.document.lineCount - 1);
@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (activeTextEditor && activeTextEditor.document.languageId === "resjson") {
       try {
         const document = activeTextEditor.document;
-        const expanded = CommandUtils.expand(document);
+        const expanded = Commands.expand(document);
 
         const firstLine = activeTextEditor.document.lineAt(0);
         let lastLine = activeTextEditor.document.lineAt(activeTextEditor.document.lineCount - 1);
@@ -66,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
     "resjson",
     {
       provideDocumentFormattingEdits(document: vscode.TextDocument, options: vscode.FormattingOptions, token: vscode.CancellationToken) {
-        const formattedContent = CommandUtils.format(document);
+        const formattedContent = Commands.format(document);
         const firstLine = document.lineAt(0);
         let lastLine = document.lineAt(document.lineCount - 1);
         const contentNumberOfLines = formattedContent.split("\n").length + 1;

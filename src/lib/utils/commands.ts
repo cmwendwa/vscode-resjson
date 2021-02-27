@@ -4,7 +4,7 @@ import { Strings } from "../../resources/res-strings";
 import { Formatting } from "./formatting";
 import { KeyValue, FormattingError } from "../models";
 
-export default class CommandUtils {
+export default class Commands {
   /**
    * Flattens provided data with a underscore
    * @param content data to be flattened
@@ -14,7 +14,7 @@ export default class CommandUtils {
     try {
       const withPaddingsAndPlaceholder = Formatting.addPlaceholders(content);
       const parsedContent = JSON.parse(withPaddingsAndPlaceholder);
-      const flattened = JSON.stringify(CommandUtils.flattenObject(parsedContent));
+      const flattened = JSON.stringify(Commands.flattenObject(parsedContent));
       return Formatting.format(flattened);
     } catch (error) {
       throw new FormattingError();
@@ -58,7 +58,7 @@ export default class CommandUtils {
     try {
       const withPaddingsAndPlaceholder = Formatting.addPlaceholders(content);
       const parsedContent = JSON.parse(withPaddingsAndPlaceholder);
-      const expanded = JSON.stringify(CommandUtils.expandObject(parsedContent));
+      const expanded = JSON.stringify(Commands.expandObject(parsedContent));
       return Formatting.format(expanded);
     } catch (error) {
       throw new FormattingError();

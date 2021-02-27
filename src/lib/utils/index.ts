@@ -1,2 +1,2 @@
-export { default as CommandUtils } from './command-utils';
+export { default as Commands } from './commands';
 export * from './formatting';
