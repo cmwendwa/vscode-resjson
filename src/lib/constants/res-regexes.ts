@@ -1,4 +1,5 @@
 import { Constants } from './general';
+
 export class Regexes {
     private static get newLinePlaceholderBase() {
         return this.newLinePlaceholderBaseWithoutTerminatingComma + ',?';
@@ -10,15 +11,19 @@ export class Regexes {
     }
 
     public static readonly lineCommentKeyRegex = /(?<=")\/\/(?="\s*:\s*".*",?)/gm;
-    public static readonly  noneCommentKeyRegex = /(?!")\w*(?="\s*:)/;
-    public static readonly  noneCommentKeyRegexGlobal = /(?!")\w*(?="\s*:)/g;
+    public static readonly noneCommentKeyRegex = /(?!")\w*(?="\s*:)/;
+    public static readonly noneCommentKeyRegexGlobal = /(?!")\w*(?="\s*:)/g;
 
     public static get itemCommentKey() {
         return new RegExp(`(?<=")_[^"]*(?=\\.comment"\\s*:.*",?(${this.newLinePlaceholderBase})?)`, 'gm');
     }
 
-    public static get newlineAtEnd (){
-        return new RegExp(`"\\w*${Constants.newLinePlaceholderTextHex}\\d{1,6}"\\s*:\\s*"${Constants.newLinePlaceholderTextHex}"\\s*$`, 'gm');
+    public static get newlineAtStart() {
+        return new RegExp(`^\\s*"\\w*${Constants.newLinePlaceholderTextHex}\\d{1,6}"\\s*:\\s*"${Constants.newLinePlaceholderTextHex}",?`, 'gm');
+    }
+
+    public static get newlineAtEnd() {
+        return new RegExp(`"\\w*${Constants.newLinePlaceholderTextHex}\\d{1,6}"\\s*:\\s*"${Constants.newLinePlaceholderTextHex}",?\\s*$`, 'gm');
     }
 
     public static readonly closingBracketsPattern = /(?<="):(?=["{])/gm;
