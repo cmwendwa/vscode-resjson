@@ -12,8 +12,8 @@ export default class Commands {
   public static flatten(document: vscode.TextDocument): string {
     const content = document.getText();
     try {
-      const withPaddingsAndPlaceholder = Formatting.addPlaceholders(content);
-      const parsedContent = JSON.parse(withPaddingsAndPlaceholder);
+      const withPlaceholders = Formatting.addPlaceholders(Formatting.format(content));
+      const parsedContent = JSON.parse(withPlaceholders);
       const flattened = JSON.stringify(Commands.flattenObject(parsedContent));
       return Formatting.format(flattened);
     } catch (error) {
@@ -56,8 +56,8 @@ export default class Commands {
   public static expand(document: vscode.TextDocument): string {
     const content = document.getText().trim();
     try {
-      const withPaddingsAndPlaceholder = Formatting.addPlaceholders(content);
-      const parsedContent = JSON.parse(withPaddingsAndPlaceholder);
+      const withPlaceholders = Formatting.addPlaceholders(Formatting.format(content));
+      const parsedContent = JSON.parse(withPlaceholders);
       const expanded = JSON.stringify(Commands.expandObject(parsedContent));
       return Formatting.format(expanded);
     } catch (error) {

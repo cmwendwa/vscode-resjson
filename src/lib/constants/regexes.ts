@@ -94,6 +94,9 @@ export class Regexes {
         return new RegExp(`\\w*${Constants.sectionCommentPaddingTextHex}\\d+$`);
     }
 
+    public static readonly newLine = /\r?\n|\r/gm;
+    public static readonly newLineWithNoNeedForPreceedingComma = /((?<=\s*[{,]\s*)(\r?\n|\r))|((?<=(\r?\n|\r))(\r?\n|\r)(?=}))/gm
+
     public static get inlinePaddedSectionCommentKeyStart() {
         return RegExp(`(?<!{)("${Constants.newLinePlaceholderTextHex}\\d+":\\s*"${Constants.newLinePlaceholderTextHex}"\\s*,)+(\\s*"\\w*${Constants.sectionCommentPaddingTextHex}\\d+":)`, 'gm');
     }

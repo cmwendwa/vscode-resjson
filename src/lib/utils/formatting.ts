@@ -10,8 +10,9 @@ export class Formatting {
      * @returns Formatted text
      */
     public static format(content: string): string {
-        const withNewlinePlaceHoldersAndPaddings = this.replaceNewLinesWithPlaceHolders(content);
-        const withoutWhiteSpaces = this.removeDanglingWhiteSpaces(withNewlinePlaceHoldersAndPaddings)
+        const withoutExtraNewlines = this.removeExtraNewLines(content);
+        const withNewlinePlaceHoldersAndPaddings = this.replaceNewLinesWithPlaceHolders(withoutExtraNewlines);
+        const withoutWhiteSpaces = this.removeDanglingWhiteSpaces(withNewlinePlaceHoldersAndPaddings);
         const withNewlines = this.addNewLines(withoutWhiteSpaces);
 
         const inDentationOptions: IndentationOptions = {};
@@ -184,9 +185,9 @@ export class Formatting {
      * @param content
      */
     public static addPlaceholders(content: string) {
-        const withNewLinePlaceholders = this.replaceNewLinesWithPlaceHolders(content.trimRight());
-        const withPaddedComments = this.replaceCommentsWithPlacholders(withNewLinePlaceholders);
-        return withPaddedComments.replace(/(,)(\s*})(?=([^"]*"[^"]*")*[^"]*$)/gm, '$2');
+        const withNewLinePlaceholders = this.replaceNewLinesWithPlaceHolders(content.trim());
+        const withCommentPlaceholders = this.replaceCommentsWithPlacholders(withNewLinePlaceholders);
+        return withCommentPlaceholders.replace(/(,)(\s*})(?=([^"]*"[^"]*")*[^"]*$)/gm, '$2');
     }
 
     /**
@@ -196,8 +197,8 @@ export class Formatting {
      */
     private static replaceCommentsWithPlacholders(content: string): string {
         const withItemCommentPadding = this.padItemComments(content);
-        const withLineCommentPadding = this.padSectionCommentKeys(withItemCommentPadding);
-        return withLineCommentPadding;
+        const withLineKeyPlaceholders = this.replaceSectionCommentKeysWithPlaceholders(withItemCommentPadding);
+        return withLineKeyPlaceholders;
     }
 
     /**
@@ -254,9 +255,9 @@ export class Formatting {
     }
 
     /**
-     * Pads line comments so that they are not lost when flattening/expanding
+     * Use placeholders for line comments so that they are not lost when flattening/expanding
      */
-    private static padSectionCommentKeys(str: string): string {
+    private static replaceSectionCommentKeysWithPlaceholders(str: string): string {
         const result = str.replace(Regexes.lineCommentKeyRegex, (match, index) => {
             let prefix = '';
             const restOfString = str.substr(index + match.length + 1);
@@ -319,7 +320,9 @@ export class Formatting {
      * @param content
      */
     private static replaceNewLinesWithPlaceHolders(content: string) {
-        return content.replace(/\r?\n|\r/gm, this.randomNewLinePlaceholder);
+        return content
+            .replace(Regexes.newLineWithNoNeedForPreceedingComma, this.randomNewLinePlaceholder)
+            .replace(Regexes.newLine, ',' + this.randomNewLinePlaceholder);
     }
 
     /**
@@ -331,5 +334,18 @@ export class Formatting {
             .replace(Regexes.newLineTrailingComma, '\n')
             .replace(Regexes.newLinePrecedingComma, '\n')
             .replace(/,(\s*})(?=([^"]*"[^"]*")*[^"]*$)/gm, '$1');
+    }
+
+    /**
+     * Truncate empty spaces to only a maximum of two consecutive newlines
+     * Also:
+     *  - Remove spaces before '}' and after '{'
+     * @param content
+     */
+    private static removeExtraNewLines(content: string) {
+        return content
+            .replace(/\s*}/gm, '}')
+            .replace(/{\s*/gm, '{')
+            .replace(/\n{2,}/gm, '\n\n');
     }
 }
