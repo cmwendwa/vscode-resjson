@@ -11,8 +11,9 @@ export class Regexes {
     }
 
     public static readonly lineCommentKeyRegex = /(?<=")\/\/(?="\s*:\s*".*",?)/gm;
-    public static readonly noneCommentKeyRegex = /(?!")\w*(?="\s*:)/;
-    public static readonly noneCommentKeyRegexGlobal = /(?!")\w*(?="\s*:)/g;
+    public static get noneCommentKeyRegex(){
+        return new RegExp(`\(?!\"\)\\w*\(\(?![(${Constants.newLinePlaceholderTextHex})]\).\)(?=\"\\s*:\)`);
+    }
 
     public static get itemCommentKey() {
         return new RegExp(`(?<=")_[^"]*(?=\\.comment"\\s*:.*",?(${this.newLinePlaceholderBase})?)`, 'gm');
