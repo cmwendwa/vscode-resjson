@@ -1,18 +1,18 @@
 import * as vscode from "vscode";
 import { Strings } from "./resources/res-strings";
-import Commands from "./lib/utils/commands";
-import { FormattingError } from "./lib/models";
+import { runResJsonCommand } from './lib/resjson-commands/index';
+import { ResJsonCommands, FormattingError } from "./lib/models/index";
 
 /**
  * Called when extension is activated
  */
 export function activate(context: vscode.ExtensionContext) {
-  const flattenByUnderScore = vscode.commands.registerCommand("extension.flattenByUnderscore", () => {
+  const flattenByUnderScore = vscode.commands.registerTextEditorCommand("extension.flattenByUnderscore", () => {
     const { activeTextEditor } = vscode.window;
     if (activeTextEditor && activeTextEditor.document.languageId === "resjson") {
       try {
         const document = activeTextEditor.document;
-        const flat = Commands.flatten(document);
+        const flat = runResJsonCommand(ResJsonCommands.Flatten, document.getText());
 
         const firstLine = activeTextEditor.document.lineAt(0);
         const lastLine = activeTextEditor.document.lineAt(activeTextEditor.document.lineCount - 1);
@@ -33,12 +33,12 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  const expandByUnderScore = vscode.commands.registerCommand("extension.expandByUnderscore", () => {
+  const expandByUnderScore = vscode.commands.registerTextEditorCommand("extension.expandByUnderscore", () => {
     const { activeTextEditor } = vscode.window;
     if (activeTextEditor && activeTextEditor.document.languageId === "resjson") {
       try {
         const document = activeTextEditor.document;
-        const expanded = Commands.expand(document);
+        const expanded = runResJsonCommand(ResJsonCommands.Expand, document.getText());
 
         const firstLine = activeTextEditor.document.lineAt(0);
         let lastLine = activeTextEditor.document.lineAt(activeTextEditor.document.lineCount - 1);
@@ -66,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
     "resjson",
     {
       provideDocumentFormattingEdits(document: vscode.TextDocument, options: vscode.FormattingOptions, token: vscode.CancellationToken) {
-        const formattedContent = Commands.format(document);
+        const formattedContent = runResJsonCommand(ResJsonCommands.Format, document.getText());
         const firstLine = document.lineAt(0);
         let lastLine = document.lineAt(document.lineCount - 1);
         const contentNumberOfLines = formattedContent.split("\n").length + 1;
