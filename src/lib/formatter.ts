@@ -53,8 +53,8 @@ export class FormatterInternal {
     }
 
     /**
-    * Remove all white spaces that are not part of a value
-    */
+     * Remove all white spaces that are not part of a value
+     */
     public removeDanglingWhiteSpaces(): FormatterInternal {
         this._content = this._content.replace(/\s(?=([^"]*"[^"]*")*[^"]*$)/gm, '');
         return this;
@@ -159,7 +159,7 @@ export class FormatterInternal {
     public indent(options?: IndentOptions): FormatterInternal {
         const indentChar = options?.useSpaces ? " " : "\t";
         let tabs = 0;
-        let withIndetation = this._content.replace(Regexes.indentationBreaksPattern, (match, g1, g2, index) => {
+        let withIndetation = this._content.replace(Regexes.indentationBreaksPattern, (_, g1, g2, __) => {
             let line;
 
             if (g1 === '') {
@@ -202,15 +202,15 @@ export class FormatterInternal {
      * Adds a newline before resjson section comments ("//": "comment content")
      */
     public addNewLineBeforeInlineSectionComments(): FormatterInternal {
-        this._content.replace(Regexes.inlinePaddedSectionCommentKeyStart, (match, group1, group2, index) => {
+        this._content.replace(Regexes.inlinePaddedSectionCommentKeyStart, (_, __, group2, ___) => {
             return `${PlaceHolderUtils.randomNewLinePlaceholder}${PlaceHolderUtils.randomNewLinePlaceholder}${group2}`;
         });
         return this;
     }
 
     /**
-    * Replace new line placeholders with actual new lines
-    */
+     * Replace new line placeholders with actual new lines
+     */
     private removePlaceholders(): FormatterInternal {
         this._content = PlaceHolderUtils.removePlaceholders(this._content);
         return this;

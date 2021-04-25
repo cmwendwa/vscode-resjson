@@ -33,9 +33,11 @@ export class Transformer {
                 }
             } else {
                 var isEmpty = true;
-                for (const p in current) {
-                    isEmpty = false;
-                    flattenRecursively(current[p], property ? property + "_" + p : p);
+                if(current){
+                    Object.keys(current).forEach((key: string) => {
+                        isEmpty = false;
+                        flattenRecursively(current[key], property ? property + "_" + key : key);
+                    });
                 }
                 if (isEmpty && property) {
                     result[property] = {};
@@ -65,8 +67,7 @@ export class Transformer {
     private static expandObject(obj: KeyValue) {
         const resultHolder: KeyValue = {};
         const keys = Object.keys(obj);
-        for (const index in keys) {
-            const key = keys[index];
+        keys?.forEach((key: string) => {
             const {
                 keySeparatorPattern,
                 paddedItemCommentKeyStart,
@@ -90,8 +91,8 @@ export class Transformer {
                 prop = parts[2] || parts[1];
             }
             cur[prop] = obj[key];
-        }
-        return resultHolder["initial"] || resultHolder;
+        });
+        return resultHolder.initial || resultHolder;
     }
 
     private static format(content: string, indentOptions: IndentOptions) {

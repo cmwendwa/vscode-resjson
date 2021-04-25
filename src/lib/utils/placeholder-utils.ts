@@ -104,9 +104,9 @@ export class PlaceHolderUtils {
             const executionResults = Regexes.noneCommentKeyRegex.exec(restOfString);
             const nextNoneCommentKey = executionResults && executionResults[0];
 
-            const split = nextNoneCommentKey && nextNoneCommentKey.split('_');
-            if (split && split.length > 1) {
-                prefix = split.length > 1 ? split.slice(0, -1).join('_') : split[0];
+            const parts = nextNoneCommentKey?.split('_');
+            if (parts && parts.length > 1) {
+                prefix = parts.length > 1 ? parts.slice(0, -1).join('_') : parts[0];
                 prefix += '_';
             }
             return `${prefix}${Constants.sectionCommentPaddingTextHex}${this.getRandomNumber()}`;
