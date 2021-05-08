@@ -2,17 +2,23 @@ import * as vscode from "vscode";
 import { Strings } from "./resources/res-strings";
 import { runResJsonCommand } from './lib/resjson-commands/index';
 import { ResJsonCommands, FormattingError } from "./lib/models/index";
+import { ResJsonDiagnostics } from "./lib/diagnostics";
 
 /**
  * Called when extension is activated
  */
 export function activate(context: vscode.ExtensionContext) {
+  // Register text editor commands
   const flattenByUnderScore = vscode.commands.registerTextEditorCommand("extension.flattenByUnderscore", flattenResJsonByUnderScore);
   const expandByUnderScore = vscode.commands.registerTextEditorCommand("extension.expandByUnderscore", expandResJsonByUndersCore);
-
   context.subscriptions.push(expandByUnderScore);
   context.subscriptions.push(flattenByUnderScore);
+
+  // Register formatting action
   registerResJsonFormattingProvider();
+
+  // Set up and trigger diagnostic updates'
+  configureDiagnostics(context);
 }
 
 /**
@@ -22,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function flattenResJsonByUnderScore() {
   const { activeTextEditor } = vscode.window;
-  if (activeTextEditor?.document.languageId === "resjson") {
+  if (activeTextEditor && isResjsonDocument()) {
     try {
       const document = activeTextEditor.document;
       const flat = runResJsonCommand(ResJsonCommands.Flatten, document.getText());
@@ -48,7 +54,7 @@ export function flattenResJsonByUnderScore() {
 
 export function expandResJsonByUndersCore() {
   const { activeTextEditor } = vscode.window;
-  if (activeTextEditor?.document.languageId === "resjson") {
+  if (activeTextEditor && isResjsonDocument()) {
     try {
       const document = activeTextEditor.document;
       const expanded = runResJsonCommand(ResJsonCommands.Expand, document.getText());
@@ -95,4 +101,32 @@ export function registerResJsonFormattingProvider() {
       }
     }
   );
+}
+
+export function configureDiagnostics(context: vscode.ExtensionContext) {
+  const diagnosticCollection = vscode.languages.createDiagnosticCollection('resjson');
+  context.subscriptions.push(diagnosticCollection);
+
+  if (vscode.window.activeTextEditor && isResjsonDocument()) {
+    ResJsonDiagnostics.updateDiagnostics(vscode.window.activeTextEditor.document, diagnosticCollection);
+  }
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeTextDocument(
+      e => isResjsonDocument(e?.document?.languageId) && ResJsonDiagnostics.updateDiagnostics(e.document, diagnosticCollection)
+    )
+  );
+  context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(
+    (e: vscode.TextEditor | undefined) => {
+      if (e !== undefined && isResjsonDocument(e?.document?.languageId)) {
+        ResJsonDiagnostics.updateDiagnostics(e.document, diagnosticCollection);
+      }
+    }));
+}
+
+// tslint:disable-next-line:typedef
+function isResjsonDocument(documentLingoId?: string) {
+  if (!documentLingoId) {
+    documentLingoId = vscode.window?.activeTextEditor?.document.languageId;
+  }
+  return documentLingoId === "resjson";
 }
