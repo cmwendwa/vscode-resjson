@@ -1,6 +1,7 @@
 import { BaseDiagnosticsValidation } from "./base-diagnostic-validator";
 import * as vscode from "vscode";
 import { Regexes } from "../constants/regexes";
+import { Strings } from '../../resources/res-strings';
 
 export class ResourceCommentDiagnosticValidator extends BaseDiagnosticsValidation {
     public static validate(splitDoc: string[], index: number): vscode.Diagnostic[] {
@@ -15,7 +16,6 @@ export class ResourceCommentDiagnosticValidator extends BaseDiagnosticsValidatio
             ).join('');
 
             if (!resourceRegex.test(restOfContent)) {
-                const errMessage = 'This comment does not match any resource key in the document.';
                 const missingCommentMatchDiag: vscode.Diagnostic = new vscode.Diagnostic(
                     new vscode.Range(
                         new vscode.Position(
@@ -23,7 +23,7 @@ export class ResourceCommentDiagnosticValidator extends BaseDiagnosticsValidatio
                         ),
                         new vscode.Position(index, line.length)
                     ),
-                    errMessage,
+                    Strings.diagnosticMessages.resourceCommentMatchError,
                     vscode.DiagnosticSeverity.Error,
                 );
                 diagnostics.push(missingCommentMatchDiag);
@@ -33,7 +33,6 @@ export class ResourceCommentDiagnosticValidator extends BaseDiagnosticsValidatio
         if (
             (Regexes.resourceCommentLikeRegex1.test(line) || Regexes.resourceCommentLikeRegex2.test(line) || Regexes.resourceCommentLikeRegex3.test(line)
             ) && !Regexes.resourceCommentKeyRegex.test(line)) {
-            const warnMessage = 'Is this suppossed to be a resource comment? As is, it is not valid resource comment. A valid item comment is in the form: "_<key>.comment": "comment_value"';
             const supposedCommentWarning: vscode.Diagnostic = new vscode.Diagnostic(
                 new vscode.Range(
                     new vscode.Position(
@@ -41,7 +40,7 @@ export class ResourceCommentDiagnosticValidator extends BaseDiagnosticsValidatio
                     ),
                     new vscode.Position(index, line.length)
                 ),
-                warnMessage,
+                Strings.diagnosticMessages.resourceCommentWarning,
                 vscode.DiagnosticSeverity.Warning,
             );
             diagnostics.push(supposedCommentWarning);

@@ -1,6 +1,7 @@
 import { BaseDiagnosticsValidation } from "./base-diagnostic-validator";
 import * as vscode from "vscode";
 import { Regexes } from "../constants/regexes";
+import { Strings } from '../../resources/res-strings';
 
 export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
     public static validate(splitDoc: string[], index: number): vscode.Diagnostic[] {
@@ -21,7 +22,6 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
             ).join('');
 
             if (resourceRegex.test(restOfContent)) {
-                const errMessage = 'A resource with the same key exist.';
                 const duplicateKeyMatchDiag: vscode.Diagnostic = new vscode.Diagnostic(
                     new vscode.Range(
                         new vscode.Position(
@@ -29,7 +29,7 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
                         ),
                         new vscode.Position(index, line.length)
                     ),
-                    errMessage,
+                    Strings.diagnosticMessages.resourceKeyExistsError,
                     vscode.DiagnosticSeverity.Error,
                 );
                 diagnostics.push(duplicateKeyMatchDiag);
@@ -46,7 +46,6 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
             )
         ) {
             if (resourceKey?.length === 0) {
-                const errMessage = 'Resource key cannot be empty';
                 const duplicateKeyMatchDiag: vscode.Diagnostic = new vscode.Diagnostic(
                     new vscode.Range(
                         new vscode.Position(
@@ -54,12 +53,11 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
                         ),
                         new vscode.Position(index, line.length)
                     ),
-                    errMessage,
+                    Strings.diagnosticMessages.resourceKeyEmptyError,
                     vscode.DiagnosticSeverity.Error,
                 );
                 diagnostics.push(duplicateKeyMatchDiag);
             } else {
-                const errMessage = 'A valid resource entry is expected to be in the format "resource_key": "resource value". It is advisable to stick to alphanumerics and underscores for resource key.';
                 const duplicateKeyMatchDiag: vscode.Diagnostic = new vscode.Diagnostic(
                     new vscode.Range(
                         new vscode.Position(
@@ -67,7 +65,7 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
                         ),
                         new vscode.Position(index, line.length)
                     ),
-                    errMessage,
+                    Strings.diagnosticMessages.invalidResourceKey,
                     Regexes.fullResourceRegex.test(line) ?
                         vscode.DiagnosticSeverity.Warning
                         : vscode.DiagnosticSeverity.Error,

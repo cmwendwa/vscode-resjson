@@ -6,9 +6,9 @@ export class EndCommaDiagnosticValidator extends BaseDiagnosticsValidation {
     public static validate(splitDoc: string[], index: number): vscode.Diagnostic[] {
         const line = splitDoc[index];
         const diagnostics: vscode.Diagnostic[] = [];
-        if (!this.isLastLine(splitDoc.slice(index + 1).join(''))) {
+        if (!this.isLastLine(splitDoc.slice(index + 1).join('').trim())) {
             const lastChar = line.trim().substr(-1);
-            if (!!lastChar && lastChar !== ',' && lastChar !== '{') {
+            if (!!line.trim() && !!lastChar && lastChar !== ',' && lastChar !== '{') {
                 const errMessage = 'Expected line to end with a comma';
                 const missingEndCharDiag: vscode.Diagnostic = new vscode.Diagnostic(
                     new vscode.Range(
@@ -28,6 +28,6 @@ export class EndCommaDiagnosticValidator extends BaseDiagnosticsValidation {
     }
 
     private static isLastLine(remainingContent: string): boolean {
-        return remainingContent.trim().startsWith('}');
+        return !remainingContent || remainingContent.startsWith('}');
     }
 }
