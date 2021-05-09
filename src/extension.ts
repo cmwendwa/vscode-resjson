@@ -3,6 +3,9 @@ import { Strings } from "./resources/res-strings";
 import { runResJsonCommand } from './lib/resjson-commands/index';
 import { ResJsonCommands, FormattingError } from "./lib/models/index";
 import { ResJsonDiagnostics } from "./lib/diagnostics";
+import { ResJsonCodeLensProvider } from "./lib/codelens/resjson-provider";
+import { insertLine } from "./lib/utils/shared-commands";
+import { ResJsonCodeActionsProvider } from './lib/codeactions/resjson-provider';
 
 /**
  * Called when extension is activated
@@ -19,6 +22,23 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Set up and trigger diagnostic updates'
   configureDiagnostics(context);
+
+  let commandDisposable = vscode.commands.registerCommand(
+    'extension.insertLine',
+    insertLine
+  );
+
+  context.subscriptions.push(commandDisposable);
+
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      'resjson', new ResJsonCodeLensProvider()
+    ));
+
+  context.subscriptions.push(
+    vscode.languages.registerCodeActionsProvider('resjson', new ResJsonCodeActionsProvider(), {
+      // providedCodeActionKinds: ResJsonCodeActionsInfo.providedCodeActionKinds
+    }));
 }
 
 /**

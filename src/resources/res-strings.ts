@@ -16,6 +16,7 @@ export class Strings {
         resourceCommentWarning: 'Is this suppossed to be a resource comment? As is, it is not valid resource comment. A valid item comment is in the form: "_<key>.comment": "comment_value"',
         resourceKeyExistsError: 'A resource with the same key exist.',
         resourceKeyEmptyError: 'Resource key cannot be empty',
-        invalidResourceKey: 'A valid resource entry is expected to be in the format "resource_key": "resource value". It is advisable to stick to alphanumerics and underscores for resource key.'
-    }
+        invalidResourceKey: 'A valid resource entry is expected to be in the format "resource_key": "resource value". It is advisable to stick to alphanumerics and underscores for resource key.',
+        missingCommaError: 'Expected line to end with a comma'
+    };
 }
