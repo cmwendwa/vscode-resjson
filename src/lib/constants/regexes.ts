@@ -11,7 +11,7 @@ export class Regexes {
     }
 
     public static readonly lineCommentKeyRegex = /(?<=")\/\/(?="\s*:\s*".*",?)/gm;
-    public static get noneCommentKeyRegex(){
+    public static get noneCommentKeyRegex() {
         return new RegExp(`\(?!\"\)\\w*\(\(?![(${Constants.newLinePlaceholderTextHex})]\).\)(?=\"\\s*:\)`);
     }
 
@@ -117,4 +117,14 @@ export class Regexes {
     public static get contentSurroundingObjectEndBracket() {
         return new RegExp(`("${Constants.newLinePlaceholderTextHex}\\d+"\\s*:\\s*"${Constants.newLinePlaceholderTextHex}",?)+(\\s*},)("${Constants.newLinePlaceholderTextHex}\\d+"\\s*:\\s*"${Constants.newLinePlaceholderTextHex}",?)+(\\s +)`, 'gm');
     }
+
+    // Dianostics' regexes
+    public static readonly resourceCommentKeyRegex = /(?<=["']_)\w*(?=\.comment["']\s*:\s*["'].*["']?,)/;
+    public static readonly resourceCommentLikeRegex1 = /(?<=["']_)\w*(?=["']\s*:)/;
+    public static readonly resourceCommentLikeRegex2 = /(?<=["']_?)\w*(?=\.c?(om)?[ment]+["']?\s*:)/;
+    public static readonly resourceCommentLikeRegex3 = /(?<=["']_?)\w*(?=\.?comment["']?\s*:?)/;
+    public static readonly lineCommentRegex = /["']\/\/["']\s*:\s*["'].*["'],?/;
+    public static readonly lineCommentLikeRegex = /["']\/\/?["']?:?\s*["']?.*["']?/;
+    public static readonly resourceKeyRegex = /(?<=")\w+(?="\s*:\s*".*")/;
+    public static readonly fullResourceRegex = /".*"\s*:\s*".*",?/;
 }
