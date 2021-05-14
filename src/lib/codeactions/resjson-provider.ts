@@ -59,10 +59,11 @@ export class ResJsonCodeActionsInfo implements vscode.CodeActionProvider {
                 break;
 
             case DiagnosticCodes.MissingResourceComment:
-                const commentPositionBelow = new Position(lineNumber + 1, line.search(/\S/));
+                const commentPositionBelow = new Position(lineNumber + 1, 0);
                 const commentPositionAbove = new Position(lineNumber, line.search(/\S/));
                 const addComma = line.trimRight().substr(-1) === ',';
-                const commentBelow = `"_${resourceKey}.comment": ""${addComma ? ',\n' : '\n'}`;
+                const indent = line.split(/\S(,*)/)[0];
+                const commentBelow = `${indent}"_${resourceKey}.comment": ""${addComma ? ',\n' : '\n'}`;
                 const commentAbove = `"_${resourceKey}.comment": "",\n`;
 
                 const fixBelow = new CodeAction('Insert comment in the line below', CodeActionKind.QuickFix);
