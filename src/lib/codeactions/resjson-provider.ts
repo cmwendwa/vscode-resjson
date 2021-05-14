@@ -52,7 +52,7 @@ export class ResJsonCodeActionsInfo implements vscode.CodeActionProvider {
 
                 const trailingCommaFix = new CodeAction('Remove trailing comma', CodeActionKind.QuickFix);
                 trailingCommaFix.isPreferred = true;
-                trailingCommaFix.diagnostics = [diagnostic];,
+                trailingCommaFix.diagnostics = [diagnostic];
                 trailingCommaFix.edit = new vscode.WorkspaceEdit();
                 trailingCommaFix.edit.replace(document.uri, trailingCommaLocation, '');
                 codeActions.push(trailingCommaFix);
