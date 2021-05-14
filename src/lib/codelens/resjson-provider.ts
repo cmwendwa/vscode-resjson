@@ -49,7 +49,8 @@ export class ResJsonCodeLensProvider implements vscode.CodeLensProvider {
 
                 const c: Command = {
                     command: 'extension.insertLine',
-                    title: 'Insert comment',
+                    title: 'Insert comment below',
+                    tooltip: 'This will insert a comment in the line below the resource.',
                     arguments: [
                         comment,
                         commentLocation
