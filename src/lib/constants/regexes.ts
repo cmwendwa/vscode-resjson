@@ -127,4 +127,5 @@ export class Regexes {
     public static readonly lineCommentLikeRegex = /["']\/\/?["']?:?\s*["']?.*["']?/;
     public static readonly resourceKeyRegex = /(?<=")\w+(?="\s*:\s*".*")/;
     public static readonly fullResourceRegex = /".*"\s*:\s*".*",?/;
+    public static readonly endOfLineComma = /(?<=\s*),(?=\s*$)/;
 }

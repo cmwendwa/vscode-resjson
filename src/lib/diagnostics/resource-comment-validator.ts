@@ -2,6 +2,7 @@ import { BaseDiagnosticsValidation } from "./base-diagnostic-validator";
 import * as vscode from "vscode";
 import { Regexes } from "../constants/regexes";
 import { Strings } from '../../resources/res-strings';
+import { DiagnosticCodes } from '../constants/general';
 
 export class ResourceCommentDiagnosticValidator extends BaseDiagnosticsValidation {
     public static validate(splitDoc: string[], index: number): vscode.Diagnostic[] {
@@ -26,6 +27,7 @@ export class ResourceCommentDiagnosticValidator extends BaseDiagnosticsValidatio
                     Strings.diagnosticMessages.resourceCommentMatchError,
                     vscode.DiagnosticSeverity.Error,
                 );
+                missingCommentMatchDiag.code = DiagnosticCodes.ResourceCommentMatchError;
                 diagnostics.push(missingCommentMatchDiag);
             }
         }
@@ -43,6 +45,7 @@ export class ResourceCommentDiagnosticValidator extends BaseDiagnosticsValidatio
                 Strings.diagnosticMessages.resourceCommentWarning,
                 vscode.DiagnosticSeverity.Warning,
             );
+            supposedCommentWarning.code = DiagnosticCodes.ResouceCommentWarning;
             diagnostics.push(supposedCommentWarning);
         }
 
