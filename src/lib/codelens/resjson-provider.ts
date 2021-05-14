@@ -23,13 +23,13 @@ export class ResJsonCodeLensProvider implements vscode.CodeLensProvider {
 
             if (isCommaMissing(line, splitDoc.slice(i + 1).join(''))) {
                 const insertionLocation = new Range(i, line.search(/\S/), i, line.trim().length);
-                const commaInsertiontLocaion = new Range(i, 0, i, line.trimRight().length + 1);
+                const commaInsertiontLocation = new Range(i, 0, i, line.trimRight().length + 1);
                 const c: Command = {
                     command: 'extension.insertLine',
                     title: 'Insert comma',
                     arguments: [
                         line.trimRight() + ',',
-                        commaInsertiontLocaion
+                        commaInsertiontLocation
                     ]
                 };
                 codelens.push(new CodeLens(insertionLocation, c));
@@ -42,9 +42,10 @@ export class ResJsonCodeLensProvider implements vscode.CodeLensProvider {
                 restOfContent
             )) {
                 const insertionLocation = new Range(i, line.search(/\S/), i, line.trim().length);
-                const commentLocation = new Range(i + 1, line.search(/\S/), i + 1, line.trimRight().length + 1);
+                const indent = line.split(/\S(,*)/)[0];
+                const commentLocation = new Range(i + 1, 0, i + 1, 0);
                 const addComma = line.trimRight().substr(-1) === ',';
-                const comment = `"_${resourceKey}.comment": "$1"${addComma ? ',' : ''}`;
+                const comment = `${indent}"_${resourceKey}.comment": "$1"${addComma ? ',' : ''}\n`;
 
                 const c: Command = {
                     command: 'extension.insertLine',
