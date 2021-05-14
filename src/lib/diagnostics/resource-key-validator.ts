@@ -4,6 +4,7 @@ import { Regexes } from "../constants/regexes";
 import { Strings } from '../../resources/res-strings';
 import { Diagnostic } from "vscode";
 import { keyMissingComment } from '../utils/comment-missing';
+import { DiagnosticCodes } from '../constants/general';
 
 export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
     public static validate(splitDoc: string[], index: number): vscode.Diagnostic[] {
@@ -31,8 +32,9 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
                 Strings.diagnosticMessages.resourceKeyEmptyError,
                 vscode.DiagnosticSeverity.Error,
             );
+            emptyKeyMatchDiag.code = DiagnosticCodes.ResourceKeyIsEmptyError;
             diagnostics.push(emptyKeyMatchDiag);
-        } else if(resourceKey) {
+        } else if (resourceKey) {
             this.validateKeyNeedingComment(
                 resourceKey,
                 restOfContent,
@@ -40,7 +42,7 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
                 index,
                 diagnostics
             );
-            if(this.keyHasMatchingResource(resourceKey, restOfContent)) {
+            if (this.keyHasMatchingResource(resourceKey, restOfContent)) {
                 const duplicateKeyMatchDiag: vscode.Diagnostic = new vscode.Diagnostic(
                     new vscode.Range(
                         new vscode.Position(
@@ -51,9 +53,10 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
                     Strings.diagnosticMessages.resourceKeyExistsError,
                     vscode.DiagnosticSeverity.Error,
                 );
+                duplicateKeyMatchDiag.code = DiagnosticCodes.ResourceKeyExistsError;
                 diagnostics.push(duplicateKeyMatchDiag);
             }
-        } else if(!(
+        } else if (!(
             Regexes.resourceCommentKeyRegex.test(line) ||
             Regexes.resourceCommentLikeRegex1.test(line) ||
             Regexes.resourceCommentLikeRegex2.test(line) ||
@@ -74,6 +77,7 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
                     vscode.DiagnosticSeverity.Warning
                     : vscode.DiagnosticSeverity.Error,
             );
+            invalidKeyDiag.code = DiagnosticCodes.InvalidResouceKey;
             diagnostics.push(invalidKeyDiag);
         }
 
@@ -99,7 +103,8 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
             value,
             restOfContent
         )) {
-            const missingCommentKeyDiag: vscode.Diagnostic = new vscode.Diagnostic(
+
+            const missingResourceCommentDiag: vscode.Diagnostic = new vscode.Diagnostic(
                 new vscode.Range(
                     new vscode.Position(
                         index, line.search(/\S/)
@@ -110,7 +115,9 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
                 vscode.DiagnosticSeverity.Warning
             );
 
-            diagnostics.push(missingCommentKeyDiag);
+            missingResourceCommentDiag.code = DiagnosticCodes.MissingResourceComment;
+
+            diagnostics.push(missingResourceCommentDiag);
         }
     }
 }

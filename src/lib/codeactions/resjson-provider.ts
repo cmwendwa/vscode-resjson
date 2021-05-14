@@ -1,87 +1,86 @@
 import * as vscode from "vscode";
-import { CodeAction, CodeActionKind, Command, Position, Range } from "vscode";
+import { CodeAction, CodeActionKind, Position, Range } from "vscode";
+import { Constants, DiagnosticCodes } from '../constants/general';
 import { Regexes } from "../constants/regexes";
-import { isCommaMissing } from '../utils/comma-missing';
-import { keyMissingComment } from "../utils/comment-missing";
 
-export class ResJsonCodeActionsProvider implements vscode.CodeActionProvider {
-    public provideCodeActions(
-        document: vscode.TextDocument,
-        _: vscode.Range,
-        __: vscode.CodeActionContext,
-        ___: vscode.CancellationToken
-    ):
-        vscode.CodeAction[] | Thenable<vscode.CodeAction[]> {
-        const splitDoc = document.getText().split('\n');
-        const codeActions: CodeAction[] = [];
+export class ResJsonCodeActionsInfo implements vscode.CodeActionProvider {
 
-        for (let i = 0; i < splitDoc.length - 1; i++) {
-            const line = splitDoc[i];
-            const resourceQuery = Regexes.resourceKeyRegex.exec(line);
-            const resourceKey = resourceQuery && resourceQuery[0];
-            const restOfContent = splitDoc.slice(0, i).concat(
-                splitDoc.slice(i + 1,)
-            ).join('');
-            if (isCommaMissing(line, splitDoc.slice(i + 1).join(''))) {
-                let commaInsertiontLocation = new Range(i, 0, i, line.trimRight().length + 1);
+    public static readonly providedCodeActionKinds = [
+        vscode.CodeActionKind.QuickFix
+    ];
 
-                const fix = new CodeAction('Insert comma at the end', CodeActionKind.QuickFix);
-                fix.edit = new vscode.WorkspaceEdit();
-                fix.edit.replace(document.uri, commaInsertiontLocation, line + ',');
-                codeActions.push(fix);
-            }
+    provideCodeActions(
+        document: vscode.TextDocument, __: vscode.Range | vscode.Selection,
+        context: vscode.CodeActionContext, ___: vscode.CancellationToken
+    ): vscode.CodeAction[] {
+        let actions: vscode.CodeAction[] = [];
+        context.diagnostics
+            .filter(diagnostic => !!diagnostic.code && Constants.actionableDiagnostics.includes(<DiagnosticCodes>diagnostic.code))
+            .forEach(diagnostic => {
+                actions = actions.concat(this.createCodeActions(diagnostic, document))
+            });
 
-            const value = line.split(/:(.+)/)[1];
-            if (resourceKey && keyMissingComment(
-                resourceKey,
-                value,
-                restOfContent
-            )) {
-                const indent = line.split(/\S(,*)/)[0];
-                const commentPositionBelow = new Position(i + 1, line.search(/\S/));
-                const commentPositionAbove = new Position(i, line.search(/\S/));
+        return actions;
+    }
+
+    private createCodeActions(diagnostic: vscode.Diagnostic, document: vscode.TextDocument): vscode.CodeAction[] {
+        const codeActions = [];
+
+        const lineNumber = diagnostic.range.start.line;
+        const line = document.lineAt(lineNumber).text;
+        const prevLine = lineNumber > 0 ? document.lineAt(lineNumber - 1) : null;
+
+        const resourceQuery = Regexes.resourceKeyRegex.exec(line);
+        const resourceKey = resourceQuery && resourceQuery[0];
+
+        // tslint:disable-next-line:switch-default
+        switch (diagnostic.code) {
+            case DiagnosticCodes.MissingCommaError:
+                let commaInsertiontLocation = new Range(lineNumber, 0, lineNumber, line.trimRight().length + 1);
+
+                const commaFix = new CodeAction('Insert comma at the end', CodeActionKind.QuickFix);
+                commaFix.isPreferred = true;
+                commaFix.diagnostics = [diagnostic];
+                commaFix.edit = new vscode.WorkspaceEdit();
+                commaFix.edit.replace(document.uri, commaInsertiontLocation, line + ',');
+                codeActions.push(commaFix);
+                break;
+
+            case DiagnosticCodes.MissingResourceComment:
+                const commentPositionBelow = new Position(lineNumber + 1, line.search(/\S/));
+                const commentPositionAbove = new Position(lineNumber, line.search(/\S/));
                 const addComma = line.trimRight().substr(-1) === ',';
-                const comment = `"_${resourceKey}.comment": ""${addComma ? ',\n' + indent : '\n'}`;
+                const commentBelow = `"_${resourceKey}.comment": ""${addComma ? ',\n': '\n'}`;
+                const commentAbove = `"_${resourceKey}.comment": "",\n`;
 
                 const fixBelow = new CodeAction('Insert comment in the line below', CodeActionKind.QuickFix);
+                fixBelow.diagnostics = [diagnostic];
+                fixBelow.isPreferred = true;
                 fixBelow.edit = new vscode.WorkspaceEdit();
-                fixBelow.edit.insert(document.uri, commentPositionBelow, comment);
+                fixBelow.edit.insert(document.uri, commentPositionBelow, commentBelow);
                 codeActions.push(fixBelow);
 
                 const fixAbove = new CodeAction('Insert comment in the line above', CodeActionKind.QuickFix);
+                fixAbove.diagnostics = [diagnostic];
                 fixAbove.edit = new vscode.WorkspaceEdit();
-                fixAbove.edit.insert(document.uri, commentPositionAbove, comment);
+                fixAbove.edit.insert(document.uri, commentPositionAbove, commentAbove);
                 codeActions.push(fixAbove);
-            }
+                break;
+
+            case DiagnosticCodes.ResourceKeyExistsError:
+                const startPoint1 = prevLine ? lineNumber - 1 : lineNumber;
+                const startPoint2 = prevLine ? prevLine.text.length : 0;
+                const keyLocation = new Range(startPoint1, startPoint2, lineNumber, line.length);
+
+                const fixDuplicateKey = new CodeAction('Delete resource', CodeActionKind.QuickFix);
+                fixDuplicateKey.diagnostics = [diagnostic]
+                fixDuplicateKey.isPreferred = true;
+                fixDuplicateKey.edit = new vscode.WorkspaceEdit();
+                fixDuplicateKey.edit.delete(document.uri, keyLocation);
+                codeActions.push(fixDuplicateKey);
+                break
         }
 
         return codeActions;
     }
 }
-
-/**
- * TODO: Provide code actions corresponding to diagnostic problems?
- */
-// export class ResJsonCodeActionsInfo implements vscode.CodeActionProvider {
-
-//     public static readonly providedCodeActionKinds = [
-//         vscode.CodeActionKind.QuickFix
-//     ];
-
-//     provideCodeActions(
-//         _: vscode.TextDocument, __: vscode.Range | vscode.Selection,
-//         context: vscode.CodeActionContext, ___: vscode.CancellationToken
-//     ): vscode.CodeAction[] {
-//         return context.diagnostics
-//             .filter(diagnostic => diagnostic.message === 'CODE')
-//             .map(diagnostic => this.createMissingCommaCodeAction(diagnostic));
-//     }
-
-//     private createMissingCommaCodeAction(diagnostic: vscode.Diagnostic): vscode.CodeAction {
-//         const action = new vscode.CodeAction('Add comma', vscode.CodeActionKind.QuickFix);
-//         action.command = { command: 'extension.insertLine', title: 'Add comma 2', tooltip: 'This will will add a comma at the end of the line' };
-//         action.diagnostics = [diagnostic];
-//         action.isPreferred = true;
-//         return action;
-//     }
-// }

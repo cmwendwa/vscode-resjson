@@ -1,3 +1,14 @@
+export enum DiagnosticCodes {
+    LineCommentWarning,
+    ResourceCommentMatchError,
+    ResouceCommentWarning,
+    ResourceKeyExistsError,
+    ResourceKeyIsEmptyError,
+    InvalidResouceKey,
+    MissingCommaError,
+    MissingResourceComment
+}
+
 export class Constants {
     private static readonly sectionCommentPaddingText = 'RESJSONSECTIONCOMMENT';
     private static readonly itemCommentPaddingText = 'RESJSONITEMCOMMENT';
@@ -13,15 +24,10 @@ export class Constants {
     public static readonly newLinePlaceholderTextHex = Buffer.from(Constants.newLinePlaceHolderText).toString('hex').toString();
     public static readonly randomNumberFloor = 0;
     public static readonly randomNumberCeil = 10000;
-}
 
-export enum DiagnosticErrorCodes {
-    LineCommentWarning,
-    ResourceCommentMatchError,
-    ResouceCommentWaning,
-    ResourceKeyExistsError,
-    ResourceKeyIsEmptyError,
-    InvalidResouceKey,
-    MissingCommaError,
-    MissingResourceComment
+    public static readonly actionableDiagnostics = [
+        DiagnosticCodes.ResourceKeyExistsError,
+        DiagnosticCodes.MissingCommaError,
+        DiagnosticCodes.MissingResourceComment
+    ]
 }

@@ -1,6 +1,7 @@
 import { BaseDiagnosticsValidation } from "./base-diagnostic-validator";
 import * as vscode from "vscode";
 import { Regexes } from "../constants/regexes";
+import { DiagnosticCodes } from '../constants/general';
 
 export class LineCommentsDiagnosticValidator extends BaseDiagnosticsValidation {
     public static validate(splitDoc: string[], index: number): vscode.Diagnostic[] {
@@ -18,6 +19,7 @@ export class LineCommentsDiagnosticValidator extends BaseDiagnosticsValidation {
                 warnMessage,
                 vscode.DiagnosticSeverity.Warning,
             );
+            supposedCommentWarning.code = DiagnosticCodes.ResouceCommentWarning;
             diagnostics.push(supposedCommentWarning);
         }
 

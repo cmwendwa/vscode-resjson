@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import { BaseDiagnosticsValidation } from "./base-diagnostic-validator";
 import { isCommaMissing } from '../utils/comma-missing';
 import { Strings } from '../../resources/res-strings';
+import { DiagnosticCodes } from '../constants/general';
 
 export class EndCommaDiagnosticValidator extends BaseDiagnosticsValidation {
     public static validate(splitDoc: string[], index: number): vscode.Diagnostic[] {
@@ -19,12 +20,10 @@ export class EndCommaDiagnosticValidator extends BaseDiagnosticsValidation {
                 Strings.diagnosticMessages.missingCommaError,
                 vscode.DiagnosticSeverity.Error
             );
+
+            missingEndCharDiag.code = DiagnosticCodes.MissingCommaError;
             diagnostics.push(missingEndCharDiag);
         }
         return diagnostics;
-    }
-
-    private static isLastLine(remainingContent: string): boolean {
-        return !remainingContent || remainingContent.startsWith('}');
     }
 }
