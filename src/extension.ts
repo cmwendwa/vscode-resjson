@@ -6,6 +6,7 @@ import { ResJsonDiagnostics } from "./lib/diagnostics";
 import { ResJsonCodeLensProvider } from "./lib/codelens/resjson-provider";
 import { insertLine } from "./lib/utils/shared-commands";
 import { ResJsonCodeActionsInfo } from './lib/codeactions/resjson-provider';
+import { ResJsonCopletionItemsProvider } from './lib/completetionitems/resjson-provider';
 
 /**
  * Called when extension is activated
@@ -14,8 +15,14 @@ export function activate(context: vscode.ExtensionContext) {
   // Register text editor commands
   const flattenByUnderScore = vscode.commands.registerTextEditorCommand("extension.flattenByUnderscore", flattenResJsonByUnderScore);
   const expandByUnderScore = vscode.commands.registerTextEditorCommand("extension.expandByUnderscore", expandResJsonByUndersCore);
-  context.subscriptions.push(expandByUnderScore);
-  context.subscriptions.push(flattenByUnderScore);
+  context.subscriptions.push(expandByUnderScore, flattenByUnderScore);
+
+  // Register shared commands
+  const commandDisposable = vscode.commands.registerCommand(
+    'extension.insertLine',
+    insertLine
+  );
+  context.subscriptions.push(commandDisposable);
 
   // Register formatting action
   registerResJsonFormattingProvider();
@@ -23,18 +30,13 @@ export function activate(context: vscode.ExtensionContext) {
   // Set up and trigger diagnostic updates'
   configureDiagnostics(context);
 
-  let commandDisposable = vscode.commands.registerCommand(
-    'extension.insertLine',
-    insertLine
-  );
-
-  context.subscriptions.push(commandDisposable);
-
+  // Configure resjson code lens provider
   context.subscriptions.push(
     vscode.languages.registerCodeLensProvider(
       'resjson', new ResJsonCodeLensProvider()
     ));
 
+  // Configure code resjson actions provider
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
       'resjson', new ResJsonCodeActionsInfo(),
@@ -43,6 +45,14 @@ export function activate(context: vscode.ExtensionContext) {
       }
     )
   );
+
+  // Configure completions provider
+  const completionItemsProvider = vscode.languages.registerCompletionItemProvider(
+    'resjson',
+    new ResJsonCopletionItemsProvider()
+  );
+
+  context.subscriptions.push(completionItemsProvider);
 }
 
 /**
