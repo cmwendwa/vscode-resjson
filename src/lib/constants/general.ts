@@ -31,5 +31,5 @@ export class Constants {
         DiagnosticCodes.MissingCommaError,
         DiagnosticCodes.TrailingCommaError,,,
         DiagnosticCodes.MissingResourceComment
-    ]
+    ];
 }

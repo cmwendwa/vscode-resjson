@@ -17,7 +17,7 @@ export class ResJsonCodeActionsInfo implements vscode.CodeActionProvider {
         context.diagnostics
             .filter(diagnostic => !!diagnostic.code && Constants.actionableDiagnostics.includes(<DiagnosticCodes>diagnostic.code))
             .forEach(diagnostic => {
-                actions = actions.concat(this.createCodeActions(diagnostic, document))
+                actions = actions.concat(this.createCodeActions(diagnostic, document));
             });
 
         return actions;
@@ -85,12 +85,12 @@ export class ResJsonCodeActionsInfo implements vscode.CodeActionProvider {
                 const keyLocation = new Range(startPoint1, startPoint2, lineNumber, line.length);
 
                 const fixDuplicateKey = new CodeAction('Delete resource', CodeActionKind.QuickFix);
-                fixDuplicateKey.diagnostics = [diagnostic]
+                fixDuplicateKey.diagnostics = [diagnostic];
                 fixDuplicateKey.isPreferred = true;
                 fixDuplicateKey.edit = new vscode.WorkspaceEdit();
                 fixDuplicateKey.edit.delete(document.uri, keyLocation);
                 codeActions.push(fixDuplicateKey);
-                break
+                break;
         }
 
         return codeActions;

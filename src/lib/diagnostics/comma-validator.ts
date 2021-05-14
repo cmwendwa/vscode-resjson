@@ -51,7 +51,7 @@ export class EndCommaDiagnosticValidator extends BaseDiagnosticsValidation {
 
     private static isTrailingComma(line: string, restOfContent: string): boolean {
         const lastLineChar = line && line.trimRight().substr(-1);
-        const firstContentChar = restOfContent && restOfContent.trimLeft()[0]
-        return lastLineChar === ',' && firstContentChar === '}'
+        const firstContentChar = restOfContent && restOfContent.trimLeft()[0];
+        return lastLineChar === ',' && firstContentChar === '}';
     }
 }
