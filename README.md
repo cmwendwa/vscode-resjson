@@ -32,6 +32,14 @@ Developer file used by Windows Metro style apps developed for Windows 8; saved i
 
 * To start using the extension with Visual Studio Code copy it into the `<user home>/.vscode/extensions` folder and restart Code.
 
+## Git hooks
+
+### Enable pre-commit hook
+
+Run the following commands:
+
+* chmod +x git_hooks/pre-commit
+* git config core.hooksPath "./git_hooks"
 
 ## To do
 
