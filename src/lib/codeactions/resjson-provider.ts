@@ -46,11 +46,23 @@ export class ResJsonCodeActionsInfo implements vscode.CodeActionProvider {
                 codeActions.push(commaFix);
                 break;
 
+            case DiagnosticCodes.TrailingCommaError:
+                const endCommaPosition = line.search(Regexes.endOfLineComma);
+                let trailingCommaLocation = new Range(lineNumber, endCommaPosition , lineNumber, endCommaPosition + 1);
+
+                const trailingCommaFix = new CodeAction('Remove trailing comma', CodeActionKind.QuickFix);
+                trailingCommaFix.isPreferred = true;
+                trailingCommaFix.diagnostics = [diagnostic];,
+                trailingCommaFix.edit = new vscode.WorkspaceEdit();
+                trailingCommaFix.edit.replace(document.uri, trailingCommaLocation, '');
+                codeActions.push(trailingCommaFix);
+                break;
+
             case DiagnosticCodes.MissingResourceComment:
                 const commentPositionBelow = new Position(lineNumber + 1, line.search(/\S/));
                 const commentPositionAbove = new Position(lineNumber, line.search(/\S/));
                 const addComma = line.trimRight().substr(-1) === ',';
-                const commentBelow = `"_${resourceKey}.comment": ""${addComma ? ',\n': '\n'}`;
+                const commentBelow = `"_${resourceKey}.comment": ""${addComma ? ',\n' : '\n'}`;
                 const commentAbove = `"_${resourceKey}.comment": "",\n`;
 
                 const fixBelow = new CodeAction('Insert comment in the line below', CodeActionKind.QuickFix);

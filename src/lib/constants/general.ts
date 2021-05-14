@@ -6,6 +6,7 @@ export enum DiagnosticCodes {
     ResourceKeyIsEmptyError,
     InvalidResouceKey,
     MissingCommaError,
+    TrailingCommaError,
     MissingResourceComment
 }
 
@@ -28,6 +29,7 @@ export class Constants {
     public static readonly actionableDiagnostics = [
         DiagnosticCodes.ResourceKeyExistsError,
         DiagnosticCodes.MissingCommaError,
+        DiagnosticCodes.TrailingCommaError,,,
         DiagnosticCodes.MissingResourceComment
     ]
 }

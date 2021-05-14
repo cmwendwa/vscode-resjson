@@ -17,6 +17,7 @@ export class Strings {
         resourceKeyExistsError: 'A resource with the same key exist.',
         resourceKeyEmptyError: 'Resource key cannot be empty',
         invalidResourceKey: 'A valid resource entry is expected to be in the format "resource_key": "resource value". It is advisable to stick to alphanumerics and underscores for resource key.',
-        missingCommaError: 'Expected line to end with a comma'
+        missingCommaError: 'Expected line to end with a comma',
+        trailingCommaError: 'Trailing commas are not allowed'
     };
 }
