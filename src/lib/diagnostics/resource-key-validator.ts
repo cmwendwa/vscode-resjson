@@ -17,9 +17,22 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
 
         const resourceQuery = Regexes.resourceKeyRegex.exec(line);
         const resourceKey = resourceQuery && resourceQuery[0];
-        const restOfContent = splitDoc.slice(0, index).concat(
-            splitDoc.slice(index + 1,)
-        ).join('');
+
+        const topContent = splitDoc.slice(0, index)
+            .join('\n')
+            .split(Regexes.objectStartCurlyBracelet)
+            .slice(-1)[0]
+            .split(Regexes.objectEndCurlyBracelet)
+            .slice(-1)[0]
+            .replace('\n', '');
+        const bottomContent = splitDoc.slice(index + 1,)
+            .join('\n')
+            .split(Regexes.objectEndCurlyBracelet)
+            .slice(0, 1)[0]
+            .split(Regexes.objectStartCurlyBracelet)
+            .slice(0, 1)[0]
+            .replace('\n', '');
+        const restOfContent = topContent + bottomContent;
 
         if (resourceKey?.length === 0) {
             const emptyKeyMatchDiag: vscode.Diagnostic = new vscode.Diagnostic(
@@ -63,6 +76,7 @@ export class ResourceKeyDiagnosticValidator extends BaseDiagnosticsValidation {
             Regexes.resourceCommentLikeRegex3.test(line) ||
             Regexes.lineCommentRegex.test(line) ||
             Regexes.lineCommentLikeRegex.test(line) ||
+            Regexes.validLineRegex.test(line) ||
             ['}', '{'].includes(line.trim())
         )) {
             const invalidKeyDiag: vscode.Diagnostic = new vscode.Diagnostic(

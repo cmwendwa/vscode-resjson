@@ -28,8 +28,8 @@ export class Regexes {
     }
 
     public static readonly closingBracketsPattern = /(?<="):(?=["{])/gm;
-    public static readonly objectEndCurlyBracelet = /(?<!".*)}(?!.*")/;
-    public static readonly objectStartCurlyBracelet = /{(?!(.*"))/;
+    public static readonly objectEndCurlyBracelet = /(?<!".*)}(?!.*")/gm;
+    public static readonly objectStartCurlyBracelet = /{(?!(.*"))/gm;
 
     public static get newLinePlaceholder() {
         return new RegExp(Regexes.newLinePlaceholderBase, 'gm');
@@ -119,13 +119,14 @@ export class Regexes {
     }
 
     // Dianostics' regexes
-    public static readonly resourceCommentKeyRegex = /(?<=["']_)\w*(?=\.comment["']\s*:\s*["'].*["']?,)/;
+    public static readonly resourceCommentKeyRegex = /(?<=["']_)\w*(?=\.comment["']\s*:\s*["'].*["'],?)/;
     public static readonly resourceCommentLikeRegex1 = /(?<=["']_)\w*(?=["']\s*:)/;
     public static readonly resourceCommentLikeRegex2 = /(?<=["']_?)\w*(?=\.c?(om)?[ment]+["']?\s*:)/;
     public static readonly resourceCommentLikeRegex3 = /(?<=["']_?)\w*(?=\.?comment["']?\s*:?)/;
     public static readonly lineCommentRegex = /["']\/\/["']\s*:\s*["'].*["'],?/;
     public static readonly lineCommentLikeRegex = /["']\/\/?["']?:?\s*["']?.*["']?/;
     public static readonly resourceKeyRegex = /(?<=")\w+(?="\s*:\s*".*")/;
+    public static readonly validLineRegex = /(?<=")\w+(?="\s*:\s*\{)|\s*},?\s*/;
     public static readonly fullResourceRegex = /".*"\s*:\s*".*",?/;
     public static readonly endOfLineComma = /(?<=\s*),(?=\s*$)/;
 }

@@ -17,11 +17,19 @@ export class ResJsonCodeLensProvider implements vscode.CodeLensProvider {
             const line = splitDoc[i];
             const resourceQuery = Regexes.resourceKeyRegex.exec(line);
             const resourceKey = resourceQuery && resourceQuery[0];
-            const restOfContent = splitDoc.slice(0, i).concat(
-                splitDoc.slice(i + 1,)
-            ).join('');
+            const topContent = splitDoc.slice(0, i)
+                .join('\n')
+                .split(Regexes.objectStartCurlyBracelet)
+                .slice(-1)[0]
+                .replace('\n', '');
+            const bottomContent = splitDoc.slice(i + 1,)
+            .join('\n')
+            .split(Regexes.closingBracketsPattern)
+            .slice(0, 1)[0]
+            .replace('\n', '');
+            const restOfContent = topContent + bottomContent;
 
-            if (isCommaMissing(line, splitDoc.slice(i + 1).join(''))) {
+            if (isCommaMissing(line, bottomContent.trim())) {
                 const insertionLocation = new Range(i, line.search(/\S/), i, line.trim().length);
                 const commaInsertiontLocation = new Range(i, 0, i, line.trimRight().length + 1);
                 const c: Command = {

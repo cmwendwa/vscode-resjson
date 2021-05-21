@@ -12,9 +12,18 @@ export class ResourceCommentDiagnosticValidator extends BaseDiagnosticsValidatio
         const resourceKey = resourceQuery && resourceQuery[0];
         if (resourceKey) {
             const resourceRegex = new RegExp(`"${resourceKey}"\\s*`);
-            const restOfContent = splitDoc.slice(0, index).concat(
-                splitDoc.slice(index + 1,)
-            ).join('');
+            const topContent = splitDoc.slice(0, index)
+                .join('\n')
+                .split(Regexes.objectStartCurlyBracelet)
+                .slice(-1)[0]
+                .replace('\n', '');
+            const bottomContent = splitDoc.slice(index + 1,)
+                .join('\n')
+                .split(Regexes.closingBracketsPattern)
+                .slice(0, 1)[0]
+                .replace('\n', '');
+
+            const restOfContent = topContent + bottomContent;
 
             if (!resourceRegex.test(restOfContent)) {
                 const missingCommentMatchDiag: vscode.Diagnostic = new vscode.Diagnostic(

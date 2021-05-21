@@ -11,9 +11,9 @@ export class Strings {
     public static readonly errorParsing = `Something went wrong while parsing file. ${Strings.ensureFormatting}`;
 
     public static readonly diagnosticMessages = {
-        lineCommentWarning: 'Is this suppossed to be a line comment? As is it is not valid line comment. A valid item comment is in the form: "//": "comment_value"',
+        lineCommentWarning: 'Is this suppossed to be a line comment? As is it is not valid line comment. A valid item comment is in the form: "//": "comment value"',
         resourceCommentMatchError: 'This comment does not match any resource key in the document',
-        resourceCommentWarning: 'Is this suppossed to be a resource comment? As is, it is not valid resource comment. A valid item comment is in the form: "_<key>.comment": "comment_value"',
+        resourceCommentWarning: 'Is this suppossed to be a resource comment? As is, it is not valid resource comment. A valid item comment is in the form: "_<key>.comment": "comment value"',
         resourceKeyExistsError: 'A resource with the same key exist.',
         resourceKeyEmptyError: 'Resource key cannot be empty',
         invalidResourceKey: 'A valid resource entry is expected to be in the format "resource_key": "resource value". It is advisable to stick to alphanumerics and underscores for resource key.',
